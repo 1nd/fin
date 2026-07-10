@@ -11,34 +11,34 @@
 
 ## 2. Data Storage Layer
 
-- [ ] 2.1 Define repository interfaces (`CategoryRepository`, `EntryRepository`) independent of any storage engine
-- [ ] 2.2 Implement IndexedDB-backed repository implementations for web
-- [ ] 2.3 Implement user-scoping (all reads/writes filtered/tagged by current `userId`)
-- [ ] 2.4 Wire repositories into app via dependency injection/context so calling code never references IndexedDB directly
-- [ ] 2.5 Test IndexedDB repositories against an in-memory IndexedDB (e.g. `fake-indexeddb`): CRUD round-trips and `userId` scoping isolation between two users
-- [ ] 2.6 Test the aggregate `DataRepository` (`hasAnyDataForUser`, full-replace `replaceAllForUser`) and `SettingsRepository`, including that restoring one user's data leaves another user's records intact
-- [ ] 2.7 Implement a resilient DB connection provider (retry after a failed open; reopen after mid-session connection loss or a cross-tab schema upgrade) and test it against `fake-indexeddb` — satisfies the `data-storage` "Storage access retries after a transient failure" requirement
-- [ ] 2.8 Mount the repository provider (from 2.4) in the app shell root `_layout`
+- [x] 2.1 Define repository interfaces (`CategoryRepository`, `EntryRepository`) independent of any storage engine
+- [x] 2.2 Implement IndexedDB-backed repository implementations for web
+- [x] 2.3 Implement user-scoping (all reads/writes filtered/tagged by current `userId`)
+- [x] 2.4 Wire repositories into app via dependency injection/context so calling code never references IndexedDB directly
+- [x] 2.5 Test IndexedDB repositories against an in-memory IndexedDB (e.g. `fake-indexeddb`): CRUD round-trips and `userId` scoping isolation between two users
+- [x] 2.6 Test the aggregate `DataRepository` (`hasAnyDataForUser`, full-replace `replaceAllForUser`) and `SettingsRepository`, including that restoring one user's data leaves another user's records intact
+- [x] 2.7 Implement a resilient DB connection provider (retry after a failed open; reopen after mid-session connection loss or a cross-tab schema upgrade) and test it against `fake-indexeddb` — satisfies the `data-storage` "Storage access retries after a transient failure" requirement
+- [x] 2.8 Mount the repository provider (from 2.4) in the app shell root `_layout`
 
 ## 3. Theming
 
-- [ ] 3.1 Define design tokens (color, spacing, typography) and theme provider/context
-- [ ] 3.2 Implement Dark theme token set as the default and only registered theme
-- [ ] 3.3 Build UI components to consume values exclusively from the theme provider (no hard-coded style values)
-- [ ] 3.4 Unit-test theme token completeness: every registered theme exposes the identical token key set (analogous to the i18n key-parity test in 4.7; guards against a future second theme missing tokens)
-- [ ] 3.5 Mount the theme provider in the app shell root `_layout` so all routes render themed
+- [x] 3.1 Define design tokens (color, spacing, typography) and theme provider/context
+- [x] 3.2 Implement Dark theme token set as the default and only registered theme
+- [x] 3.3 Build UI components to consume values exclusively from the theme provider (no hard-coded style values)
+- [x] 3.4 Unit-test theme token completeness: every registered theme exposes the identical token key set (analogous to the i18n key-parity test in 4.7; guards against a future second theme missing tokens)
+- [x] 3.5 Mount the theme provider in the app shell root `_layout` so all routes render themed
 
 ## 4. Localization
 
-- [ ] 4.1 Set up i18n library and English + Indonesian translation resources
-- [ ] 4.2 Implement Indonesian and English/US number formatting (thousands/decimal separators, digit grouping) as an independent preference from language
-- [ ] 4.3 Implement date format selection limited to exactly three options (`YYYY-MM-DD`, `DD-MM-YYYY`, `MM-DD-YYYY`), independent of language and number format; render all times in fixed 24-hour format (no 12-hour option)
-- [ ] 4.4 Implement shared preference-resolution logic (explicit setting → Google account locale → browser locale), applied independently to each of language, number format, and date format
-- [ ] 4.5 Build Settings/Account page controls for language, number format, and date format as three separate selectors, each persisting its own override independently
-- [ ] 4.6 Unit-test locale preference resolution (Google account locale → browser locale → hardcoded default, each preference independent) and number/date formatting
-- [ ] 4.7 Unit-test i18n invariants: en/id resource files expose identical key sets, and `getI18nInstance` returns a synchronously initialized instance (guards the inline-resources assumption)
-- [ ] 4.8 Add a render smoke test asserting translated text (not raw i18n keys) appears in both languages
-- [ ] 4.9 Mount the i18n provider in the app shell root `_layout`
+- [x] 4.1 Set up i18n library and English + Indonesian translation resources
+- [x] 4.2 Implement Indonesian and English/US number formatting (thousands/decimal separators, digit grouping) as an independent preference from language
+- [x] 4.3 Implement date format selection limited to exactly three options (`YYYY-MM-DD`, `DD-MM-YYYY`, `MM-DD-YYYY`), independent of language and number format; render all times in fixed 24-hour format (no 12-hour option)
+- [x] 4.4 Implement shared preference-resolution logic (explicit setting → Google account locale → browser locale), applied independently to each of language, number format, and date format
+- [x] 4.5 Build Settings/Account page controls for language, number format, and date format as three separate selectors, each persisting its own override independently
+- [x] 4.6 Unit-test locale preference resolution (Google account locale → browser locale → hardcoded default, each preference independent) and number/date formatting
+- [x] 4.7 Unit-test i18n invariants: en/id resource files expose identical key sets, and `getI18nInstance` returns a synchronously initialized instance (guards the inline-resources assumption)
+- [x] 4.8 Add a render smoke test asserting translated text (not raw i18n keys) appears in both languages
+- [x] 4.9 Mount the i18n provider in the app shell root `_layout`
 
 ## 5. Auth
 
@@ -49,6 +49,7 @@
 - [ ] 5.5 Mount the auth provider in the root `_layout`, wire `SignInScreen` into the Sign-in route, and gate authenticated routes (redirect to Sign-in when no session; redirect away from Sign-in when a session exists)
 - [ ] 5.6 Wire the Google OAuth client ID via `EXPO_PUBLIC_GOOGLE_CLIENT_ID` (add `.env.example` and a README note covering the Google Cloud Console setup with `http://localhost:8081` as authorized origin) so real sign-in works locally
 - [ ] 5.7 Verify manually at localhost: sign-in completes, session restores on reload, sign-out ends the session
+- [ ] 5.8 Read the signed-in user's persisted language and drive `I18nProvider` with it (replacing the hardcoded `DEFAULT_LANGUAGE` in the root `_layout`), so a language change from Settings (10.3) takes effect app-wide
 
 ## 6. Category Model
 
