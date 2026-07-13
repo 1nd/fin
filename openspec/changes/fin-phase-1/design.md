@@ -24,6 +24,7 @@ Fin replaces an ad hoc Google Sheets workflow for tracking net worth (assets/lia
 - No retained history of multiple backup versions — the Drive backup file is overwritten on each run (see Decision 9); Drive's own revision history is the only fallback if a bad backup overwrites a good one.
 - Drive backup is not a sync mechanism between multiple devices/browsers — IndexedDB remains the sole source of truth for reads/writes; Drive is a one-way backup destination and a restore source, not a live sync target.
 - No ability to change the base/reporting currency once the first entry has been recorded (see Decision 5) — it's locked at that point. A separate, purely cosmetic "view this report in a different currency" display layer (converting an already-computed total using today's rate, without touching stored data or the locked base currency) is a clean future extension but is not built in Phase 1.
+- No visual branding or icon design work — the app icon, favicon, and app name only need to be present, legible, and comfortable against the Dark theme (no harsh/clashing colors on the dark splash and UI). A real visual identity is deferred to whenever Fin gets an actual design pass.
 
 ## Decisions
 

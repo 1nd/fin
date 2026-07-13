@@ -6,8 +6,8 @@
 - [x] 1.4 Set up the test runner and an `npm test` script: single Jest runner via jest-expo + @testing-library/react-native (design Decision 11)
 - [x] 1.5 Add a pre-commit hook via husky + lint-staged that runs Prettier and ESLint (with `--fix`) on staged files only — no typecheck or tests in the hook (those stay in manual scripts/CI)
 - [x] 1.6 Add GitHub Actions CI workflow running lint, Prettier check, typecheck, and tests on PRs and pushes to `main`; enable branch protection requiring it to pass before merge (design Decision 13)
-- [ ] 1.7 Create the expo-router route skeleton (`src/app/`): minimal root `_layout` (no providers yet) and placeholder routes for Sign-in, Dashboard, Categories, Entries, Reports, and Settings — from this point the app runs at localhost (`npm run web`) and every later UI task replaces its placeholder and is manually verifiable in the browser
-- [ ] 1.8 Configure app icons/branding placeholders and basic app shell
+- [x] 1.7 Create the expo-router route skeleton (`src/app/`): minimal root `_layout` (no providers yet) and placeholder routes for Sign-in, Dashboard, Categories, Entries, Reports, and Settings — from this point the app runs at localhost (`npm run web`) and every later UI task replaces its placeholder and is manually verifiable in the browser
+- [x] 1.8 Verify app icon/favicon/name placeholders meet the no-branding bar (present, legible, comfortable against the Dark theme — see design Non-Goals): adjust the placeholder PNG colors if they clash with the dark splash/UI, and confirm app name, favicon, and splash at localhost
 
 ## 2. Data Storage Layer
 
