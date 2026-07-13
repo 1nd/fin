@@ -1,5 +1,15 @@
 // CCA: 1
 const en = {
+  auth: {
+    signIn: {
+      title: 'Welcome to Fin',
+      description: 'Sign in with Google to get started. Your data is stored only in this browser.',
+      button: 'Sign in with Google',
+    },
+    signOut: {
+      button: 'Sign out',
+    },
+  },
   settings: {
     language: {
       label: 'Language',

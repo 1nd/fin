@@ -1,5 +1,9 @@
 // CCA: 2
-import type { Category, EntityType } from '@/domain/models';
+import {
+  resolveInitialLocalePreferences,
+  type LocaleFallbackSource,
+} from '@/i18n/preference-resolution';
+import type { Category, EntityType, UserSettings } from '@/domain/models';
 import { UNCATEGORIZED_NAME } from '@/domain/models';
 import type { DataRepository } from './repository-ports';
 
@@ -97,4 +101,30 @@ export async function seedIfFirstSignIn(
   const hasData = await dataRepository.hasAnyDataForUser(userId);
   if (hasData) return;
   await dataRepository.categories.bulkUpsert(buildStarterCategories(userId, generateId));
+}
+
+/**
+ * Seeds a user's Settings row the first time their account is initialized, resolving language,
+ * number format, and date format from the fallback chain (design Decision 8; localization spec's
+ * "seeded once from a fallback chain" requirement). Returns the existing row unchanged if one
+ * already exists — the fallback chain is never re-applied after the first seed.
+ */
+export async function seedSettingsIfFirstSignIn(
+  storageRepository: StorageRepository,
+  userId: string,
+  fallbackSource: LocaleFallbackSource,
+): Promise<UserSettings> {
+  const existing = await storageRepository.settings.get(userId);
+  if (existing) return existing;
+
+  const settings: UserSettings = {
+    userId,
+    baseCurrency: null,
+    lastBackupAt: null,
+    lastBackupStatus: null,
+    lastBackupPendingChanges: false,
+    ...resolveInitialLocalePreferences(fallbackSource),
+  };
+  await storageRepository.settings.put(settings);
+  return settings;
 }

@@ -1,11 +1,11 @@
 // CCA: 4
-import { Screen } from '@/shared-ui/Screen';
-import { Text } from '@/shared-ui/Text';
+import { RequireGuest } from '@/features/auth/AuthGate';
+import { SignInScreen } from '@/features/auth/SignInScreen';
 
 export default function SignInRoute() {
   return (
-    <Screen style={{ alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Sign in (placeholder)</Text>
-    </Screen>
+    <RequireGuest>
+      <SignInScreen />
+    </RequireGuest>
   );
 }

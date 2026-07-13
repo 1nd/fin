@@ -42,14 +42,15 @@
 
 ## 5. Auth
 
-- [ ] 5.1 Integrate Google Sign-In (client-side OAuth/Identity Services flow), including the incremental `drive.file` scope needed for backup
-- [ ] 5.2 Derive and persist a stable `userId` from the authenticated Google account
-- [ ] 5.3 Implement local session handling (sign-in restores session on reload, sign-out ends session without deleting data)
-- [ ] 5.4 Build sign-in/sign-out UI, including messaging that Phase 1 data is local to the browser
-- [ ] 5.5 Mount the auth provider in the root `_layout`, wire `SignInScreen` into the Sign-in route, and gate authenticated routes (redirect to Sign-in when no session; redirect away from Sign-in when a session exists)
-- [ ] 5.6 Wire the Google OAuth client ID via `EXPO_PUBLIC_GOOGLE_CLIENT_ID` (add `.env.example` and a README note covering the Google Cloud Console setup with `http://localhost:8081` as authorized origin) so real sign-in works locally
-- [ ] 5.7 Verify manually at localhost: sign-in completes, session restores on reload, sign-out ends the session
-- [ ] 5.8 Read the signed-in user's persisted language and drive `I18nProvider` with it (replacing the hardcoded `DEFAULT_LANGUAGE` in the root `_layout`), so a language change from Settings (10.3) takes effect app-wide
+- [x] 5.1 Integrate Google Sign-In (client-side OAuth/Identity Services flow), including the incremental `drive.file` scope needed for backup
+- [x] 5.2 Derive and persist a stable `userId` from the authenticated Google account
+- [x] 5.3 Implement local session handling (sign-in restores session on reload, sign-out ends session without deleting data)
+- [x] 5.4 Build sign-in/sign-out UI, including messaging that Phase 1 data is local to the browser
+- [x] 5.5 Mount the auth provider in the root `_layout`, wire `SignInScreen` into the Sign-in route, and gate authenticated routes (redirect to Sign-in when no session; redirect away from Sign-in when a session exists)
+- [x] 5.6 Wire the Google OAuth client ID via `EXPO_PUBLIC_GOOGLE_CLIENT_ID` (add `.env.example` and a README note covering the Google Cloud Console setup with `http://localhost:8081` as authorized origin) so real sign-in works locally
+- [x] 5.7 Read the signed-in user's persisted language and drive `I18nProvider` with it (replacing the hardcoded `DEFAULT_LANGUAGE` in the root `_layout`), so a language change from Settings (10.3) takes effect app-wide
+- [x] 5.8 Fix Google "Error 400: invalid_request — Parameter not allowed for this message type: code_challenge_method": `useGoogleAuthRequest` in `src/features/auth/google/google-oauth.ts` uses the implicit flow (`ResponseType.Token`), but `AuthSession.useAuthRequest` sends PKCE params by default and Google rejects PKCE on implicit-flow requests — set `usePKCE: false` in the request config.
+- [x] 5.9 Verify manually at localhost: sign-in completes, session restores on reload, sign-out ends the session
 
 ## 6. Category Model
 
