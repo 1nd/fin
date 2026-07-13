@@ -207,6 +207,21 @@ A single GitHub Actions workflow runs the four existing npm scripts (`lint`, `fo
 
 Use the latest release of each action. The action's major version is independent of the project's Node version — `setup-node` resolves `.nvmrc` against a live version manifest fetched at run time, and the Node runtime the action itself executes on is bundled with the runner, not taken from the project.
 
+### 14. Styling authoring convention: memoized `StyleSheet.create` factories, inline `style` only for dynamic or one-off values
+
+Decision 7 governs _where_ style values come from (theme tokens via the provider); it does not govern _how_ a component authors its styles. The memoized factory pattern — `const styles = useMemo(() => createStyles(theme), [theme])` over `StyleSheet.create(...)` — is the standard. Inline `style` is reserved for two specific cases:
+
+1. **Values that genuinely vary per render** — e.g. `Button`'s `labelColor`, which depends on `variant` and `disabled` and so cannot live in a static stylesheet. `Button` is the reference example: static rules in `createStyles`, the one computed color inline.
+2. **A single one-off override** passed through a `style` prop to compose with a component's own styles (e.g. `<Card style={{ marginTop }}>`).
+
+The rationale is specific to this project, not generic RN dogma:
+
+- **react-native-web (the Phase 1 target) compiles `StyleSheet.create` styles into deduplicated atomic CSS classes**, whereas inline object literals become per-element inline `style` attributes. The factory therefore produces smaller, more reused output on web — which matters most in repeated rows like `CategoryTree`.
+- **Inline literals allocate a fresh style object every render**, defeating child memoization; the memoized factory allocates once and only recomputes if `theme` changes (never, in single-theme Phase 1).
+- A plain module-level `StyleSheet.create` (the textbook RN idiom) is deliberately _not_ the convention here, because tokens are runtime values read from context — the styles must be built from a `theme` argument, so the memoized `createStyles(theme)` factory is the correct shape.
+
+Third-party styling systems (NativeWind, styled-components, etc.) are explicitly out of scope: they add dependencies the design never calls for, and the token-provider architecture already delivers the theme-swap guarantee (Decision 7) that would be their main draw. Enforcement is by convention and review in Phase 1, consistent with the `// CCA` tags (Decision 10); a lint rule can automate it later if drift recurs.
+
 ## Risks / Trade-offs
 
 - **[Risk]** Drive backup runs are best-effort and activity-triggered — data written in the debounce window (roughly the last 1-2 minutes) immediately before a device is lost is still at risk if the debounced backup hadn't completed yet. → **Mitigation**: the debounce window is short by design, and the sign-out trigger covers sessions that end deliberately; a manual "back up now" affordance could be added later if this proves insufficient, though it wasn't chosen for Phase 1 (see Decision 9).
