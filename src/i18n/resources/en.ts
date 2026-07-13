@@ -34,6 +34,28 @@ const en = {
       },
     },
   },
+  categories: {
+    title: 'Categories',
+    entityTypes: {
+      asset: 'Assets',
+      liability: 'Liabilities',
+      income: 'Income',
+      expense: 'Expenses',
+    },
+    empty: 'No categories yet.',
+    addRoot: 'Add category',
+    addChild: 'Add subcategory',
+    rename: 'Rename',
+    delete: 'Delete',
+    move: 'Move',
+    moveHere: 'Move here',
+    moveToTopLevel: 'Move to top level',
+    cancelMove: 'Cancel move',
+    namePlaceholder: 'Category name',
+    save: 'Save',
+    cancel: 'Cancel',
+    confirmDelete: 'Delete this category? Its entries and subcategories move to its parent.',
+  },
 } as const;
 
 export default en;

@@ -5,14 +5,8 @@ import {
 } from '@/i18n/preference-resolution';
 import type { Category, EntityType, UserSettings } from '@/domain/models';
 import { UNCATEGORIZED_NAME } from '@/domain/models';
-import type { DataRepository } from './repository-ports';
-
-/**
- * Port for id generation — a platform detail (web `crypto.randomUUID` is not
- * available on React Native's Hermes runtime), so implementations are
- * supplied by the outer wiring layer, never called directly here.
- */
-export type IdGenerator = () => string;
+import type { IdGenerator } from './id-generator/port';
+import type { StorageRepository } from './repository-ports';
 
 interface StarterNode {
   name: string;
@@ -94,13 +88,13 @@ export function buildStarterCategories(userId: string, generateId: IdGenerator):
 
 /** Seeds starter categories the first time a user's account is initialized (Task 6.6 in `fin-phase-1`). */
 export async function seedIfFirstSignIn(
-  dataRepository: DataRepository,
+  storageRepository: StorageRepository,
   userId: string,
   generateId: IdGenerator,
 ): Promise<void> {
-  const hasData = await dataRepository.hasAnyDataForUser(userId);
+  const hasData = await storageRepository.hasAnyDataForUser(userId);
   if (hasData) return;
-  await dataRepository.categories.bulkUpsert(buildStarterCategories(userId, generateId));
+  await storageRepository.categories.bulkUpsert(buildStarterCategories(userId, generateId));
 }
 
 /**

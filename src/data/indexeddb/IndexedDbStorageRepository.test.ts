@@ -2,7 +2,7 @@ import type { Category, Entry } from '@/domain/models';
 import { IDBFactory } from 'fake-indexeddb';
 import 'fake-indexeddb/auto';
 import { createDbProvider } from './db';
-import { IndexedDbDataRepository } from './IndexedDbDataRepository';
+import { IndexedDbStorageRepository } from './IndexedDbStorageRepository';
 
 function makeCategory(overrides: Partial<Category> & Pick<Category, 'id' | 'userId'>): Category {
   return {
@@ -28,12 +28,12 @@ function makeEntry(overrides: Partial<Entry> & Pick<Entry, 'id' | 'userId'>): En
   };
 }
 
-describe('IndexedDbDataRepository', () => {
-  let repo: IndexedDbDataRepository;
+describe('IndexedDbStorageRepository', () => {
+  let repo: IndexedDbStorageRepository;
 
   beforeEach(() => {
     globalThis.indexedDB = new IDBFactory();
-    repo = new IndexedDbDataRepository(createDbProvider());
+    repo = new IndexedDbStorageRepository(createDbProvider());
   });
 
   describe('hasAnyDataForUser', () => {

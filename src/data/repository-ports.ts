@@ -27,7 +27,7 @@ export interface SettingsRepository {
  * (full replace for restore, presence check for the sign-in empty-state
  * check) that need to touch more than one store.
  */
-export interface DataRepository {
+export interface StorageRepository {
   categories: CategoryRepository;
   entries: EntryRepository;
   settings: SettingsRepository;

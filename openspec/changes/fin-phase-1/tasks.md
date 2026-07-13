@@ -54,15 +54,15 @@
 
 ## 6. Category Model
 
-- [ ] 6.1 Define `Category` schema (id, name, parentId, entityType) and persistence via the repository layer
-- [ ] 6.2 Implement category CRUD (create, rename, delete, reparent) with arbitrary depth
-- [ ] 6.3 Implement rollup aggregation (own entries + recursive descendant entries) via in-memory tree walk
-- [ ] 6.4 Implement deletion reassignment: entries/children move to parent; fallback to entity type's "Uncategorized" category when no parent exists
-- [ ] 6.5 Create system "Uncategorized" category per entity type, protected from deletion
-- [ ] 6.6 Define and seed recommended starter category trees (2-3 levels) per entity type on first sign-in
-- [ ] 6.7 Build category management UI (tree view, create/rename/delete/reparent, entity type scoping)
-- [ ] 6.8 Parameterize rollup's entry valuation (`valueOf` callback on `computeCategoryRollups`) so the tree walk in `domain/rollup.ts` stays purely structural, with base-currency valuation supplied by callers (design Decision 10)
-- [ ] 6.9 Unit-test category-tree operations, rollup aggregation, and deletion reassignment in `domain/` (the "most worth unit-testing" logic per design Decision 10)
+- [x] 6.1 Define `Category` schema (id, name, parentId, entityType) and persistence via the repository layer
+- [x] 6.2 Implement category CRUD (create, rename, delete, reparent) with arbitrary depth
+- [x] 6.3 Implement rollup aggregation (own entries + recursive descendant entries) via in-memory tree walk
+- [x] 6.4 Implement deletion reassignment: entries/children move to parent; fallback to entity type's "Uncategorized" category when no parent exists
+- [x] 6.5 Create system "Uncategorized" category per entity type, protected from deletion
+- [x] 6.6 Define and seed recommended starter category trees (2-3 levels) per entity type on first sign-in
+- [x] 6.7 Build category management UI (tree view, create/rename/delete/reparent, entity type scoping)
+- [x] 6.8 Parameterize rollup's entry valuation (`valueOf` callback on `computeCategoryRollups`) so the tree walk in `domain/rollup.ts` stays purely structural, with base-currency valuation supplied by callers (design Decision 10)
+- [x] 6.9 Unit-test category-tree operations, rollup aggregation, and deletion reassignment in `domain/` (the "most worth unit-testing" logic per design Decision 10)
 - [ ] 6.10 Wire `CategoryScreen` into the Categories route and verify category management manually at localhost
 
 ## 7. Financial Entries

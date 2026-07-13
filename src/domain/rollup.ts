@@ -1,21 +1,24 @@
 // CCA: 1
 import type { Category, Entry } from './models';
-import { toBaseAmount } from './fx';
 
 /**
  * A category's rollup value is its own directly-attached entries plus the
  * rolled-up value of every descendant category, computed recursively by
- * walking the in-memory tree (design Decision 3).
+ * walking the in-memory tree (design Decision 3). The tree walk stays purely
+ * structural: base-currency valuation of an entry is supplied by the caller
+ * via `valueOf` (design Decision 10, Task 6.8), so this module has no
+ * dependency on `fx`.
  */
 export function computeCategoryRollups(
   categories: Category[],
   entries: Entry[],
+  valueOf: (entry: Entry) => number,
 ): Map<string, number> {
   const ownTotals = new Map<string, number>();
   for (const category of categories) ownTotals.set(category.id, 0);
   for (const entry of entries) {
     const current = ownTotals.get(entry.categoryId) ?? 0;
-    ownTotals.set(entry.categoryId, current + toBaseAmount(entry));
+    ownTotals.set(entry.categoryId, current + valueOf(entry));
   }
 
   const childrenByParent = new Map<string, string[]>();

@@ -1,5 +1,5 @@
 // CCA: 1
-import type { Category, Entry, EntityType } from './models';
+import type { Category, EntityType, Entry } from './models';
 
 export function findUncategorized(
   categories: Category[],
@@ -81,4 +81,37 @@ export function computeDeletionReassignment(
     .map((e) => ({ ...e, categoryId: reassignedToId! }));
 
   return { reparentedCategories, reassignedEntries, reassignedToId };
+}
+
+export interface CategoryTreeNode {
+  category: Category;
+  children: CategoryTreeNode[];
+}
+
+/**
+ * Builds a nested tree for one entity type's categories, for display in the
+ * category management UI. The system "Uncategorized" category is excluded --
+ * it is never shown in category management (categories spec: "Uncategorized
+ * hidden from category management").
+ */
+export function buildCategoryTree(
+  categories: Category[],
+  entityType: EntityType,
+): CategoryTreeNode[] {
+  const scoped = categories.filter((c) => c.entityType === entityType && !c.isSystem);
+  const childrenByParent = new Map<string | null, Category[]>();
+  for (const category of scoped) {
+    const list = childrenByParent.get(category.parentId) ?? [];
+    list.push(category);
+    childrenByParent.set(category.parentId, list);
+  }
+
+  function build(parentId: string | null): CategoryTreeNode[] {
+    return (childrenByParent.get(parentId) ?? [])
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((category) => ({ category, children: build(category.id) }));
+  }
+
+  return build(null);
 }

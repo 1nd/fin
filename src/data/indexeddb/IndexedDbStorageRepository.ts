@@ -1,12 +1,12 @@
 // CCA: 3
 import type { Category, Entry } from '@/domain/models';
-import type { DataRepository } from '../repository-ports';
+import type { StorageRepository } from '../repository-ports';
 import { IndexedDbCategoryRepository } from './CategoryRepository';
 import { createDbProvider, type GetDb } from './db';
 import { IndexedDbEntryRepository } from './EntryRepository';
 import { IndexedDbSettingsRepository } from './SettingsRepository';
 
-export class IndexedDbDataRepository implements DataRepository {
+export class IndexedDbStorageRepository implements StorageRepository {
   readonly categories: IndexedDbCategoryRepository;
   readonly entries: IndexedDbEntryRepository;
   readonly settings: IndexedDbSettingsRepository;
