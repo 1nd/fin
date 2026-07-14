@@ -6,7 +6,7 @@ import type { Category, Entry } from './models';
  * rolled-up value of every descendant category, computed recursively by
  * walking the in-memory tree (design Decision 3). The tree walk stays purely
  * structural: base-currency valuation of an entry is supplied by the caller
- * via `valueOf` (design Decision 10, Task 6.8), so this module has no
+ * via `valueOf` (design Decision 10), so this module has no
  * dependency on `fx`.
  */
 export function computeCategoryRollups(

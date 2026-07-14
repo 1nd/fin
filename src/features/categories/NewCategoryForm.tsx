@@ -1,8 +1,9 @@
 // CCA: 4
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Button } from '@/shared-ui/Button';
+import { Input } from '@/shared-ui/Input';
 import { useTheme } from '@/theme/ThemeProvider';
 import type { Theme } from '@/theme/tokens';
 
@@ -34,11 +35,10 @@ export function NewCategoryForm({
 
   return (
     <View style={styles.row}>
-      <TextInput
+      <Input
         value={name}
         onChangeText={setName}
         placeholder={t('categories.namePlaceholder')}
-        placeholderTextColor={theme.colors.textDisabled}
         style={styles.input}
       />
       <Button label={label} onPress={submit} />

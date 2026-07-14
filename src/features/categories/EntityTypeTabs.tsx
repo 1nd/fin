@@ -1,18 +1,18 @@
 // CCA: 4
-import React, { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
 import { ENTITY_TYPES, type EntityType } from '@/domain/models';
 import { Button } from '@/shared-ui/Button';
 import { useTheme } from '@/theme/ThemeProvider';
 import type { Theme } from '@/theme/tokens';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { StyleSheet, View } from 'react-native';
 
 interface EntityTypeTabsProps {
   value: EntityType;
   onChange(value: EntityType): void;
 }
 
-/** Scopes the category tree view to one entity type at a time (Task 6.7). */
+/** Scopes the category tree view to one entity type at a time. */
 export function EntityTypeTabs({ value, onChange }: EntityTypeTabsProps) {
   const { t } = useTranslation();
   const theme = useTheme();

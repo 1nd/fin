@@ -1,28 +1,29 @@
 // CCA: 4
-import React, { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
 import type { CategoryTreeNode } from '@/domain/category-tree';
-import { Button } from '@/shared-ui/Button';
+import { IconButton } from '@/shared-ui/IconButton';
+import { ListItem } from '@/shared-ui/ListItem';
 import { Text } from '@/shared-ui/Text';
 import { useTheme } from '@/theme/ThemeProvider';
 import type { Theme } from '@/theme/tokens';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { StyleSheet, View } from 'react-native';
 import { NewCategoryForm } from './NewCategoryForm';
 
 export interface CategoryTreeProps {
   nodes: CategoryTreeNode[];
-  /** Category id -> base-currency rollup total (Task 6.3). */
+  /** Category id -> base-currency rollup total. */
   rollups: Map<string, number>;
   /** Id of the category currently being reparented, if any. */
   movingId: string | null;
   onAddChild(parentId: string, name: string): void;
   onRename(id: string, name: string): void;
-  onDelete(id: string): void;
+  onRequestDelete(id: string): void;
   onStartMove(id: string): void;
   onMoveHere(id: string): void;
 }
 
-/** Recursive category tree view: create/rename/delete/reparent, one entity type at a time (Task 6.7). */
+/** Recursive category tree view: create/rename/delete/reparent, one entity type at a time. */
 export function CategoryTree(props: CategoryTreeProps) {
   return (
     <View>
@@ -45,7 +46,7 @@ function CategoryTreeItem({
   movingId,
   onAddChild,
   onRename,
-  onDelete,
+  onRequestDelete,
   onStartMove,
   onMoveHere,
 }: CategoryTreeItemProps) {
@@ -71,42 +72,48 @@ function CategoryTreeItem({
           onCancel={() => setRenaming(false)}
         />
       ) : (
-        <View style={styles.row}>
-          <Text variant="body">{category.name}</Text>
-          <Text variant="caption">{total.toLocaleString()}</Text>
-          {movingId ? (
-            !isMoving && (
-              <Button
-                label={t('categories.moveHere')}
-                variant="secondary"
-                onPress={() => onMoveHere(category.id)}
-              />
+        <ListItem
+          actions={
+            movingId ? (
+              !isMoving ? (
+                <IconButton
+                  name="arrow-forward-circle-outline"
+                  accessibilityLabel={t('categories.moveHere')}
+                  onPress={() => onMoveHere(category.id)}
+                />
+              ) : undefined
+            ) : (
+              <>
+                <IconButton
+                  name="add-circle-outline"
+                  accessibilityLabel={t('categories.addChild')}
+                  onPress={() => setAddingChild(true)}
+                />
+                <IconButton
+                  name="pencil-outline"
+                  accessibilityLabel={t('categories.rename')}
+                  onPress={() => setRenaming(true)}
+                />
+                <IconButton
+                  name="swap-vertical-outline"
+                  accessibilityLabel={t('categories.move')}
+                  onPress={() => onStartMove(category.id)}
+                />
+                <IconButton
+                  name="trash-outline"
+                  variant="danger"
+                  accessibilityLabel={t('categories.delete')}
+                  onPress={() => onRequestDelete(category.id)}
+                />
+              </>
             )
-          ) : (
-            <>
-              <Button
-                label={t('categories.addChild')}
-                variant="secondary"
-                onPress={() => setAddingChild(true)}
-              />
-              <Button
-                label={t('categories.rename')}
-                variant="secondary"
-                onPress={() => setRenaming(true)}
-              />
-              <Button
-                label={t('categories.move')}
-                variant="secondary"
-                onPress={() => onStartMove(category.id)}
-              />
-              <Button
-                label={t('categories.delete')}
-                variant="danger"
-                onPress={() => onDelete(category.id)}
-              />
-            </>
-          )}
-        </View>
+          }
+        >
+          <View style={styles.row}>
+            <Text variant="body">{category.name}</Text>
+            <Text variant="caption">{total.toLocaleString()}</Text>
+          </View>
+        </ListItem>
       )}
       {addingChild ? (
         <NewCategoryForm
@@ -129,7 +136,7 @@ function CategoryTreeItem({
               movingId={movingId}
               onAddChild={onAddChild}
               onRename={onRename}
-              onDelete={onDelete}
+              onRequestDelete={onRequestDelete}
               onStartMove={onStartMove}
               onMoveHere={onMoveHere}
             />
@@ -143,11 +150,11 @@ function CategoryTreeItem({
 function createStyles(theme: Theme) {
   return StyleSheet.create({
     item: {
-      marginTop: theme.spacing.sm,
+      marginTop: theme.spacing.xs,
     },
     row: {
       flexDirection: 'row',
-      alignItems: 'center',
+      alignItems: 'baseline',
       gap: theme.spacing.sm,
       flexWrap: 'wrap',
     },

@@ -19,6 +19,10 @@ export interface UseCategoriesResult {
   /** Category id -> base-currency rollup total (own entries + descendants). */
   rollups: Map<string, number>;
   loading: boolean;
+  /** Set when the initial load (seeding + fetch) failed; cleared by `reload`. */
+  error: unknown;
+  /** Re-runs the initial load, e.g. from an ErrorBanner's retry action. */
+  reload(): void;
   createCategory(entityType: EntityType, name: string, parentId: string | null): Promise<void>;
   renameCategory(id: string, name: string): Promise<void>;
   deleteCategory(id: string): Promise<void>;
@@ -27,34 +31,49 @@ export interface UseCategoriesResult {
 
 /**
  * Loads a user's categories (seeding recommended starter categories on first
- * use, Task 6.6) and exposes CRUD operations that go through the domain
- * layer's reparent-cycle validation and deletion-reassignment rules (Tasks
- * 6.2, 6.4), plus rollup totals (Task 6.3).
+ * use) and exposes CRUD operations that go through the domain
+ * layer's reparent-cycle validation and deletion-reassignment rules, plus rollup totals.
  */
 export function useCategories(userId: string): UseCategoriesResult {
   const repository = useRepository();
   const generateId = useIdGenerator();
   const [state, setState] = useState<FetchState | null>(null);
+  const [error, setError] = useState<unknown>(null);
+  const [loading, setLoading] = useState(true);
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      await seedIfFirstSignIn(repository, userId, generateId);
-      const [categories, entries] = await Promise.all([
-        repository.categories.listByUser(userId),
-        repository.entries.listByUser(userId),
-      ]);
-      if (!cancelled) setState({ userId, categories, entries });
+      setLoading(true);
+      setError(null);
+      try {
+        await seedIfFirstSignIn(repository, userId, generateId);
+        const [categories, entries] = await Promise.all([
+          repository.categories.listByUser(userId),
+          repository.entries.listByUser(userId),
+        ]);
+        if (!cancelled) {
+          setState({ userId, categories, entries });
+          setLoading(false);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err);
+          setLoading(false);
+        }
+      }
     })();
     return () => {
       cancelled = true;
     };
-  }, [repository, userId, generateId]);
+  }, [repository, userId, generateId, reloadToken]);
+
+  const reload = useCallback(() => setReloadToken((n) => n + 1), []);
 
   const fresh = state?.userId === userId;
   const categories = useMemo(() => (fresh ? state!.categories : []), [fresh, state]);
   const entries = useMemo(() => (fresh ? state!.entries : []), [fresh, state]);
-  const loading = !fresh;
   const rollups = computeCategoryRollups(categories, entries, toBaseAmount);
 
   const createCategory = useCallback(
@@ -141,6 +160,8 @@ export function useCategories(userId: string): UseCategoriesResult {
     categories,
     rollups,
     loading,
+    error,
+    reload,
     createCategory,
     renameCategory,
     deleteCategory,

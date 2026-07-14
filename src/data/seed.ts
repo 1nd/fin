@@ -1,10 +1,10 @@
 // CCA: 2
+import type { Category, EntityType, UserSettings } from '@/domain/models';
+import { UNCATEGORIZED_NAME } from '@/domain/models';
 import {
   resolveInitialLocalePreferences,
   type LocaleFallbackSource,
 } from '@/i18n/preference-resolution';
-import type { Category, EntityType, UserSettings } from '@/domain/models';
-import { UNCATEGORIZED_NAME } from '@/domain/models';
 import type { IdGenerator } from './id-generator/port';
 import type { StorageRepository } from './repository-ports';
 
@@ -86,7 +86,7 @@ export function buildStarterCategories(userId: string, generateId: IdGenerator):
   return categories;
 }
 
-/** Seeds starter categories the first time a user's account is initialized (Task 6.6 in `fin-phase-1`). */
+/** Seeds starter categories the first time a user's account is initialized. */
 export async function seedIfFirstSignIn(
   storageRepository: StorageRepository,
   userId: string,

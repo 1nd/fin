@@ -24,7 +24,7 @@ Fin replaces an ad hoc Google Sheets workflow for tracking net worth (assets/lia
 - No retained history of multiple backup versions — the Drive backup file is overwritten on each run (see Decision 9); Drive's own revision history is the only fallback if a bad backup overwrites a good one.
 - Drive backup is not a sync mechanism between multiple devices/browsers — IndexedDB remains the sole source of truth for reads/writes; Drive is a one-way backup destination and a restore source, not a live sync target.
 - No ability to change the base/reporting currency once the first entry has been recorded (see Decision 5) — it's locked at that point. A separate, purely cosmetic "view this report in a different currency" display layer (converting an already-computed total using today's rate, without touching stored data or the locked base currency) is a clean future extension but is not built in Phase 1.
-- No visual branding or icon design work — the app icon, favicon, and app name only need to be present, legible, and comfortable against the Dark theme (no harsh/clashing colors on the dark splash and UI). A real visual identity is deferred to whenever Fin gets an actual design pass.
+- No visual branding or icon design work — the app icon, favicon, and app name only need to be present, legible, and comfortable against the Dark theme (no harsh/clashing colors on the dark splash and UI). A real visual identity is deferred to whenever Fin gets an actual design pass. This defers _identity_, not _usability_: the responsive shell, shared components, and interaction conventions of Decision 15 are in scope precisely because "ship a usable web app" (Goals) includes desktop and phone browsers.
 
 ## Decisions
 
@@ -191,6 +191,8 @@ Component tests use `@testing-library/react-native`, which renders the React Nat
 
 Component-level testing is deliberately thin in Phase 1 (a render smoke test guarding i18n wiring); the unit-test weight stays on `domain/` per Decision 10.
 
+**`shared-ui/` components are unit-tested only when they carry a behavioral contract** — conditional branching, event-handler chaining, dismiss/focus semantics, or a mapping that must never leak raw data (e.g. `resolveErrorMessageKey` never surfacing a raw exception message). Purely presentational components (a message and an optional callback rendered straight through, e.g. `EmptyState`, `LoadingState`, `ErrorBanner`) are not unit-tested individually — a passthrough test only proves React re-renders its props, and any real regression in how they're used together (loading → error → empty → populated, confirm-before-delete) is a screen-level concern. That coverage instead lives in the owning screen's test (e.g. `CategoryScreen.test.tsx`'s data-states suite), which exercises the same components wired into their real data flow instead of in isolation.
+
 **Version constraint: Jest stays on the 29.x line until jest-expo targets 30.** `jest-expo@57` bundles Jest-29-pinned internals (notably `jest-environment-jsdom@29`, which pins `jest-mock@29`), so running the CLI from `jest@30` mixes jest-mock 29 into a Jest 30 runtime and crashes at startup (`this._moduleMocker.clearMocksOnScope is not a function`). `@types/jest` follows the same 29.x line. Revisit when a jest-expo release declares Jest 30 support. Relatedly, `@testing-library/react-native@14` uses the `test-renderer` package (peer dep) instead of the deprecated `react-test-renderer`, and its `render()` is async — tests must `await render(...)`.
 
 ### 12. Dependency versioning: Expo-managed versions are changed only via `npx expo install`, never hand-bumped
@@ -222,6 +224,18 @@ The rationale is specific to this project, not generic RN dogma:
 - A plain module-level `StyleSheet.create` (the textbook RN idiom) is deliberately _not_ the convention here, because tokens are runtime values read from context — the styles must be built from a `theme` argument, so the memoized `createStyles(theme)` factory is the correct shape.
 
 Third-party styling systems (NativeWind, styled-components, etc.) are explicitly out of scope: they add dependencies the design never calls for, and the token-provider architecture already delivers the theme-swap guarantee (Decision 7) that would be their main draw. Enforcement is by convention and review in Phase 1, consistent with the `// CCA` tags (Decision 10); a lint rule can automate it later if drift recurs.
+
+### 15. UI foundation: responsive shell via the built-in tab navigator, shared-ui grown by need, interaction conventions as spec requirements
+
+Phase 1 must be usable in both desktop and phone browsers (Goals), but the initial shell was phone-shaped: React Navigation's default (light, unthemed, icon-less) bottom tab bar against the Dark theme, and content stretching full-width at desktop viewport sizes. Rather than a custom navigation shell or a third-party component library, the foundation is built from what is already in the stack:
+
+- **Responsive navigation**: the `Tabs` navigator expo-router ships natively supports `tabBarPosition: 'left' | 'bottom'` (and `tabBarVariant`), so "sidebar on desktop, bottom tabs on phone" is a configuration switch on `useWindowDimensions`, not a second navigation implementation. A single breakpoint at **768px** selects the layout: sidebar at ≥768px, bottom tabs below. Desktop, tablet, and phone browsers are all targets; one breakpoint is deliberate in that there is no tablet-specific third layout — a tablet gets the sidebar or bottom-tab layout depending on which side of 768px its width falls. The bar is "usable at every width," not "optimized per device class."
+- **Content width**: `Screen` gains a centered max-width content column (~880px) on wide viewports, a no-op below the breakpoint. This is the cheap fix that makes full-width desktop rendering acceptable without per-screen layout work.
+- **Icons**: `@expo/vector-icons`, installed via `npx expo install` (Decision 12). `expo-symbols` was rejected for this purpose: SF Symbols are iOS-only and Phase 1 targets web.
+- **shared-ui grows by need, not by catalog**: `Input`, `IconButton`, `ListItem`, `ConfirmDialog`, `EmptyState`, `LoadingState`, `ErrorBanner` — each justified by a screen already in this change's tasks (entries form, reports, settings, backup status). No third-party component library, consistent with Decision 14's rejection of external styling systems: the token provider already delivers what they'd offer.
+- **Interaction conventions are spec requirements, not habits**: destructive actions require confirmation; every data-backed screen presents loading, empty, and error states; error messages shown to the user are translated and human-readable — raw exception text is never rendered. These live in the `ui-foundation` spec so they bind every remaining Phase 1 screen (entries, reports, settings, backup status), not just the screen that pioneered them.
+
+This is deliberately **not** the deferred "real visual identity" design pass (Non-Goals): tokens, palette, typography, and branding are untouched. The scope is making what exists usable at both viewport classes.
 
 ## Risks / Trade-offs
 

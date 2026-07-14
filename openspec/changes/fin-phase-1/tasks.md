@@ -18,14 +18,14 @@
 - [x] 2.5 Test IndexedDB repositories against an in-memory IndexedDB (e.g. `fake-indexeddb`): CRUD round-trips and `userId` scoping isolation between two users
 - [x] 2.6 Test the aggregate `DataRepository` (`hasAnyDataForUser`, full-replace `replaceAllForUser`) and `SettingsRepository`, including that restoring one user's data leaves another user's records intact
 - [x] 2.7 Implement a resilient DB connection provider (retry after a failed open; reopen after mid-session connection loss or a cross-tab schema upgrade) and test it against `fake-indexeddb` — satisfies the `data-storage` "Storage access retries after a transient failure" requirement
-- [x] 2.8 Mount the repository provider (from 2.4) in the app shell root `_layout`
+- [x] 2.8 Mount the repository provider in the app shell root `_layout`
 
 ## 3. Theming
 
 - [x] 3.1 Define design tokens (color, spacing, typography) and theme provider/context
 - [x] 3.2 Implement Dark theme token set as the default and only registered theme
 - [x] 3.3 Build UI components to consume values exclusively from the theme provider (no hard-coded style values)
-- [x] 3.4 Unit-test theme token completeness: every registered theme exposes the identical token key set (analogous to the i18n key-parity test in 4.7; guards against a future second theme missing tokens)
+- [x] 3.4 Unit-test theme token completeness: every registered theme exposes the identical token key set (analogous to the i18n key-parity test4.7; guards against a future second theme missing tokens)
 - [x] 3.5 Mount the theme provider in the app shell root `_layout` so all routes render themed
 
 ## 4. Localization
@@ -48,7 +48,7 @@
 - [x] 5.4 Build sign-in/sign-out UI, including messaging that Phase 1 data is local to the browser
 - [x] 5.5 Mount the auth provider in the root `_layout`, wire `SignInScreen` into the Sign-in route, and gate authenticated routes (redirect to Sign-in when no session; redirect away from Sign-in when a session exists)
 - [x] 5.6 Wire the Google OAuth client ID via `EXPO_PUBLIC_GOOGLE_CLIENT_ID` (add `.env.example` and a README note covering the Google Cloud Console setup with `http://localhost:8081` as authorized origin) so real sign-in works locally
-- [x] 5.7 Read the signed-in user's persisted language and drive `I18nProvider` with it (replacing the hardcoded `DEFAULT_LANGUAGE` in the root `_layout`), so a language change from Settings (10.3) takes effect app-wide
+- [x] 5.7 Read the signed-in user's persisted language and drive `I18nProvider` with it (replacing the hardcoded `DEFAULT_LANGUAGE` in the root `_layout`), so a language change from Settings takes effect app-wide
 - [x] 5.8 Fix Google "Error 400: invalid_request — Parameter not allowed for this message type: code_challenge_method": `useGoogleAuthRequest` in `src/features/auth/google/google-oauth.ts` uses the implicit flow (`ResponseType.Token`), but `AuthSession.useAuthRequest` sends PKCE params by default and Google rejects PKCE on implicit-flow requests — set `usePKCE: false` in the request config.
 - [x] 5.9 Verify manually at localhost: sign-in completes, session restores on reload, sign-out ends the session
 
@@ -63,55 +63,73 @@
 - [x] 6.7 Build category management UI (tree view, create/rename/delete/reparent, entity type scoping)
 - [x] 6.8 Parameterize rollup's entry valuation (`valueOf` callback on `computeCategoryRollups`) so the tree walk in `domain/rollup.ts` stays purely structural, with base-currency valuation supplied by callers (design Decision 10)
 - [x] 6.9 Unit-test category-tree operations, rollup aggregation, and deletion reassignment in `domain/` (the "most worth unit-testing" logic per design Decision 10)
-- [ ] 6.10 Wire `CategoryScreen` into the Categories route and verify category management manually at localhost
 
-## 7. Financial Entries
+## 7. UI Foundation
 
-- [ ] 7.1 Define `Entry` schema (categoryId, amount, currency, fxRateToBase, date, note for income/expense) and persistence via the repository layer
-- [ ] 7.2 Implement append-only snapshot entries for asset/liability categories (no overwrite/edit-in-place of prior snapshots)
-- [ ] 7.3 Implement transaction entries for income/expense categories, supporting both single aggregated and itemized entry patterns
-- [ ] 7.4 Implement entity-type validation (entry's category must match asset/liability vs income/expense)
-- [ ] 7.5 Implement multi-currency entry input with required manual exchange rate when currency differs from base currency
-- [ ] 7.6 Build entry entry/edit UI for assets, liabilities, income, and expenses, wired into the Entries route and verified manually at localhost
-- [ ] 7.7 Build base currency confirmation prompt shown when saving the first entry (default suggested from locale, explicit confirm/override required, states permanence)
-- [ ] 7.8 Block first-entry save until base currency is confirmed; finalize as read-only once confirmed
-- [ ] 7.9 Unit-test FX conversion (`domain/fx`) and entity-type validation logic
+After implementing "Category Model", we found out the UI foundation required a rework. So we decided to do it before continuing with more features ("Financial Entries", "Reporting", etc.). Therefore UI foundation tasks is put here (after "Category Model")
 
-## 8. Reporting
+- [x] 7.1 Add `@expo/vector-icons` via `npx expo install` (Expo-managed, per design Decision 12)
+- [x] 7.2 Build `Input` shared-ui component (themed text field: border, focus state, placeholder color).
+- [x] 7.3 Build `IconButton` and `ListItem` shared-ui components (row layout with content + trailing actions, pressed state)
+- [x] 7.4 Build `ConfirmDialog` shared-ui component (themed modal: consequence message, confirm/cancel, destructive variant)
+- [x] 7.5 Build `EmptyState` (message + optional call-to-action), `LoadingState`, and `ErrorBanner` shared-ui components
+- [x] 7.6 Implement an error-message mapping helper that converts domain/storage errors into translated, human-readable messages (en + id), so raw exception text is never rendered as a user-facing message
+- [x] 7.7 Build `Screen` with a centered max-width (~880px) content column at ≥768px (no-op below) and a standard screen-header pattern (title + optional actions)
+- [x] 7.8 From installed `@expo/vector-icons`, pick one icon set, and choose the five tab icons (Dashboard, Categories, Entries, Reports, Settings).
+- [x] 7.9 Theme the navigation chrome from theme tokens (tab bar/header background, active/inactive tints, borders) with icons and labels — no default navigator styling visible against the Dark theme
+- [x] 7.10 Implement the responsive shell: switch `tabBarPosition` between `bottom` (<768px) and `left` (≥768px) via `useWindowDimensions`, preserving the current route when the viewport crosses the breakpoint
+- [x] 7.11 Unit-test `shared-ui` components and the error-mapping helper (render + basic interaction; new i18n keys covered by the en/id key-parity test in Localization tasks)
+- [x] 7.12 Wire `CategoryScreen` into the Categories route. Use `shared-ui` components when possible (e.g. per-row actions behind icon affordances instead of four text buttons, confirm-on-delete, real loading/empty/error states). Verify category management manually at localhost
+- [x] 7.13 Verify the responsive shell manually at localhost: sidebar + centered content column at ≥768px, bottom tabs + full-width content below, all five routes navigable and usable at desktop, tablet, and phone widths (tablet gets whichever layout its width selects)
 
-- [ ] 8.1 Implement net worth computation (assets − liabilities, converted to base currency via stored entry FX rates) across historical snapshot dates
-- [ ] 8.2 Build net worth over time chart
-- [ ] 8.3 Implement category breakdown computation (using rollup aggregation) for a selected entity type and period
-- [ ] 8.4 Build category breakdown chart/view, wired into the Reports route and verified manually at localhost
-- [ ] 8.5 (Nice-to-have) Implement income vs. expense trend computation and chart
-- [ ] 8.6 Unit-test net worth computation (`domain/net-worth`) across historical snapshot dates, including multi-currency conversion via stored FX rates
+## 8. Financial Entries
 
-## 9. Drive Backup & Restore
+- [ ] 8.1 Define `Entry` schema (categoryId, amount, currency, fxRateToBase, date, note for income/expense) and persistence via the repository layer
+- [ ] 8.2 Implement append-only snapshot entries for asset/liability categories (no overwrite/edit-in-place of prior snapshots)
+- [ ] 8.3 Implement transaction entries for income/expense categories, supporting both single aggregated and itemized entry patterns
+- [ ] 8.4 Implement entity-type validation (entry's category must match asset/liability vs income/expense)
+- [ ] 8.5 Implement multi-currency entry input with required manual exchange rate when currency differs from base currency
+- [ ] 8.6 Build entry entry/edit UI for assets, liabilities, income, and expenses, wired into the Entries route and verified manually at localhost
+- [ ] 8.7 Build base currency confirmation prompt shown when saving the first entry (default suggested from locale, explicit confirm/override required, states permanence)
+- [ ] 8.8 Block first-entry save until base currency is confirmed; finalize as read-only once confirmed
+- [ ] 8.9 Unit-test FX conversion (`domain/fx`) and entity-type validation logic
 
-- [ ] 9.1 Implement Drive API client for creating/updating a single app-owned file (`drive.file` scope)
-- [ ] 9.2 Define backup serialization format for a user's categories and entries
-- [ ] 9.3 Implement debounced backup-after-write-activity trigger (fires ~1-2 min after the last change, while app is open), tracking last-successful-backup timestamp and whether changes are pending locally
-- [ ] 9.4 Implement backup-on-sign-out trigger, skipping it if no changes are pending since the last successful backup
-- [ ] 9.5 Implement non-blocking failure handling so a failed backup never interrupts normal app use
-- [ ] 9.6 Implement backup status display (last attempt timestamp + success/failure) in Settings
-- [ ] 9.7 Implement restore: detect existing Drive backup and offer restore on sign-in when no local data exists
-- [ ] 9.8 Implement manual restore action in Settings, with confirmation when local data already exists
-- [ ] 9.9 Implement restore-as-full-replace (load backup contents into IndexedDB, discarding any differing local data)
-- [ ] 9.10 Detect whether `drive.file` was actually granted (Google's granular consent lets users decline individual scopes — check the granted scopes in the auth response, e.g. `authentication.scope`) and expose that status to the backup feature; skip backup triggers entirely when not granted
-- [ ] 9.11 Surface the missing-permission state in the Settings backup section (distinct message from a generic backup failure, per the drive-backup spec) with a "grant permission" action that re-runs the consent prompt; backups activate on the next trigger once granted
+## 9. Reporting
 
-## 10. Settings
+- [ ] 9.1 Implement net worth computation (assets − liabilities, converted to base currency via stored entry FX rates) across historical snapshot dates
+- [ ] 9.2 Build net worth over time chart
+- [ ] 9.3 Implement category breakdown computation (using rollup aggregation) for a selected entity type and period
+- [ ] 9.4 Build category breakdown chart/view, wired into the Reports route and verified manually at localhost
+- [ ] 9.5 (Nice-to-have) Implement income vs. expense trend computation and chart
+- [ ] 9.6 Unit-test net worth computation (`domain/net-worth`) across historical snapshot dates, including multi-currency conversion via stored FX rates
 
-- [ ] 10.1 Build Settings/Account page shell, wired into the Settings route and verified manually at localhost
-- [ ] 10.2 Surface the finalized base/reporting currency as a read-only value in Settings (from Task 7.8); if not yet finalized, indicate it will be chosen at the first entry
-- [ ] 10.3 Surface language, number format, and date format selectors (from Task 4.5), sign-out (from Task 5.4), and backup status/manual restore (from Tasks 9.6, 9.8) in Settings
+## 10. Drive Backup & Restore
 
-## 11. QA and Polish
+- [ ] 10.1 Implement Drive API client for creating/updating a single app-owned file (`drive.file` scope)
+- [ ] 10.2 Define backup serialization format for a user's categories and entries
+- [ ] 10.3 Implement debounced backup-after-write-activity trigger (fires ~1-2 min after the last change, while app is open), tracking last-successful-backup timestamp and whether changes are pending locally
+- [ ] 10.4 Implement backup-on-sign-out trigger, skipping it if no changes are pending since the last successful backup
+- [ ] 10.5 Implement non-blocking failure handling so a failed backup never interrupts normal app use
+- [ ] 10.6 Implement backup status display (last attempt timestamp + success/failure) in Settings
+- [ ] 10.7 Implement restore: detect existing Drive backup and offer restore on sign-in when no local data exists
+- [ ] 10.8 Implement manual restore action in Settings, with confirmation when local data already exists
+- [ ] 10.9 Implement restore-as-full-replace (load backup contents into IndexedDB, discarding any differing local data)
+- [ ] 10.10 Detect whether `drive.file` was actually granted (Google's granular consent lets users decline individual scopes — check the granted scopes in the auth response, e.g. `authentication.scope`) and expose that status to the backup feature; skip backup triggers entirely when not granted
+- [ ] 10.11 Surface the missing-permission state in the Settings backup section (distinct message from a generic backup failure, per the drive-backup spec) with a "grant permission" action that re-runs the consent prompt; backups activate on the next trigger once granted
 
-- [ ] 11.1 Verify empty/first-run states (no categories, no entries, seeded starter categories visible)
-- [ ] 11.2 Verify deletion/reassignment and reparenting behavior against the `categories` spec scenarios
-- [ ] 11.3 Verify multi-currency entry and net worth conversion against the `financial-entries` and `reporting` spec scenarios
-- [ ] 11.4 Cross-browser check for IndexedDB behavior (storage limits, persistence across reloads)
-- [ ] 11.5 Accessibility pass on Dark theme (contrast, readability) as a baseline before future themes are added
-- [ ] 11.6 Verify backup/restore behavior against the `drive-backup` spec scenarios, including a fresh-browser restore and a manual restore with existing local data
-- [ ] 11.7 Verify base currency confirmation flow: prompted on first entry, entry blocked until confirmed, default suggestion overridable, permanently fixed and read-only afterward
+## 11. Settings
+
+- [ ] 11.1 Build Settings/Account page shell, wired into the Settings route and verified manually at localhost
+- [ ] 11.2 Surface the finalized base/reporting currency as a read-only value in Settings; if not yet finalized, indicate it will be chosen at the first entry
+- [ ] 11.3 Surface language, number format, and date format selectors, sign-out, and backup status/manual restore in Settings
+
+## 12. QA and Polish
+
+- [ ] 12.1 Verify empty/first-run states (no categories, no entries, seeded starter categories visible)
+- [ ] 12.2 Verify deletion/reassignment and reparenting behavior against the `categories` spec scenarios
+- [ ] 12.3 Verify multi-currency entry and net worth conversion against the `financial-entries` and `reporting` spec scenarios
+- [ ] 12.4 Cross-browser check for IndexedDB behavior (storage limits, persistence across reloads)
+- [ ] 12.5 Accessibility pass on Dark theme (contrast, readability) as a baseline before future themes are added
+- [ ] 12.6 Verify backup/restore behavior against the `drive-backup` spec scenarios, including a fresh-browser restore and a manual restore with existing local data
+- [ ] 12.7 Verify base currency confirmation flow: prompted on first entry, entry blocked until confirmed, default suggestion overridable, permanently fixed and read-only afterward
+- [ ] 12.8 Verify all screens built after the UI Foundation section against the `ui-foundation` spec scenarios (loading/empty/error states, destructive-action confirmation, localized errors) at desktop, tablet, and phone widths

@@ -1,5 +1,23 @@
 // CCA: 1
 const en = {
+  common: {
+    loading: 'Loading…',
+    retry: 'Retry',
+    confirm: 'Confirm',
+    cancel: 'Cancel',
+  },
+  nav: {
+    dashboard: 'Dashboard',
+    categories: 'Categories',
+    entries: 'Entries',
+    reports: 'Reports',
+    settings: 'Settings',
+  },
+  errors: {
+    generic: 'Something went wrong. Please try again.',
+    categoryReparentCycle:
+      "A category can't be moved under itself or one of its own subcategories.",
+  },
   auth: {
     signIn: {
       title: 'Welcome to Fin',
@@ -55,6 +73,8 @@ const en = {
     save: 'Save',
     cancel: 'Cancel',
     confirmDelete: 'Delete this category? Its entries and subcategories move to its parent.',
+    deleteConfirmTitle: 'Delete category?',
+    loadError: 'Your categories could not be loaded.',
   },
 } as const;
 

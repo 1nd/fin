@@ -11,6 +11,7 @@ Financial life is currently tracked ad hoc in spreadsheets (Google Sheets), whic
 - Add a unified `Entry` model: append-only, timestamped records attached to any category node — balance snapshots for assets/liabilities, transactions for income/expenses — both supporting multi-currency amounts with a manually-entered, time-locked exchange rate.
 - Add reporting views: net worth over time and category breakdown (must-have); income vs. expense trend (nice-to-have).
 - Add an extensible theming architecture shipping with a Dark theme only; no theme switcher UI yet since there is only one theme.
+- Add a responsive UI foundation: a navigation shell that adapts between phone browser widths (bottom tabs) and desktop browser widths (sidebar + centered content column), a small set of shared interaction components (input, icon button, list item, confirm dialog, empty/loading/error states), and app-wide interaction conventions (destructive actions confirm; data screens show loading/empty/error states; errors are human-readable and localized). Explicitly not a visual identity/branding pass, which remains deferred.
 - Add internationalization support for English and Indonesian, with `id-ID` locale formatting, defaulting from the user's Google account locale or browser locale, overridable in Settings.
 - Add automatic backup of local data to the user's Google Drive (via the Drive API, using an incremental OAuth scope granted during Google Sign-In), plus restore, to protect against data loss if the browser's local storage is cleared or the device is lost.
 
@@ -24,6 +25,7 @@ Financial life is currently tracked ad hoc in spreadsheets (Google Sheets), whic
 - `financial-entries`: Append-only snapshot (assets/liabilities) and transaction (income/expenses) records attached to categories, with multi-currency amounts and manually-entered, time-locked exchange rates.
 - `reporting`: Net worth over time and category breakdown visualizations (must-have), income vs. expense trend (nice-to-have).
 - `theming`: Extensible design-token/theme-provider architecture shipping with a single Dark theme.
+- `ui-foundation`: Responsive app shell (adaptive navigation, content layout) and app-wide interaction conventions (confirmation for destructive actions, loading/empty/error states, human-readable localized errors) that all screens build on.
 - `localization`: English/Indonesian language support with `id-ID` locale-aware number, date, and currency formatting, and language preference resolution/override.
 - `drive-backup`: Automatic, activity-triggered backup of local data to the user's Google Drive (shortly after changes settle, plus on sign-out), with restore (manual, and offered automatically on sign-in when no local data is present).
 
