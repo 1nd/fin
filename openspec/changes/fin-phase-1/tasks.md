@@ -95,6 +95,8 @@
 - [ ] 9.7 Implement restore: detect existing Drive backup and offer restore on sign-in when no local data exists
 - [ ] 9.8 Implement manual restore action in Settings, with confirmation when local data already exists
 - [ ] 9.9 Implement restore-as-full-replace (load backup contents into IndexedDB, discarding any differing local data)
+- [ ] 9.10 Detect whether `drive.file` was actually granted (Google's granular consent lets users decline individual scopes — check the granted scopes in the auth response, e.g. `authentication.scope`) and expose that status to the backup feature; skip backup triggers entirely when not granted
+- [ ] 9.11 Surface the missing-permission state in the Settings backup section (distinct message from a generic backup failure, per the drive-backup spec) with a "grant permission" action that re-runs the consent prompt; backups activate on the next trigger once granted
 
 ## 10. Settings
 

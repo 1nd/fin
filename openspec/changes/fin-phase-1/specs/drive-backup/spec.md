@@ -9,6 +9,30 @@ The system SHALL request an incremental Google Drive OAuth scope limited to file
 - **WHEN** a user completes Google Sign-In
 - **THEN** the system has obtained a Drive scope sufficient to create and update a backup file, without access to the user's other Drive files
 
+#### Scenario: Scope declined during sign-in
+
+- **WHEN** a user completes Google Sign-In but declines the Drive permission on Google's consent screen
+- **THEN** sign-in still completes normally and every non-backup feature remains fully usable, with backup inactive until the permission is granted
+
+### Requirement: Missing Drive permission is visible and grantable later
+
+The system SHALL, when the signed-in user has not granted the `drive.file` scope, clearly indicate in Settings that backup is not operating because the Drive permission was not granted (distinct from a generic backup failure), and SHALL provide an action in Settings to request the permission again without requiring sign-out.
+
+#### Scenario: Settings explains why backup is inactive
+
+- **WHEN** a user who declined the Drive permission opens Settings
+- **THEN** the system states that backup is inactive because Drive permission was not granted, rather than showing a generic backup failure
+
+#### Scenario: Granting the permission later
+
+- **WHEN** the user triggers the permission request from Settings and grants the Drive scope on Google's consent screen
+- **THEN** backups operate normally from that point on, starting with the next backup trigger
+
+#### Scenario: Declining again from Settings
+
+- **WHEN** the user triggers the permission request from Settings and declines again
+- **THEN** the app remains fully usable, Settings continues to show backup as inactive due to missing permission, and the user can retry later
+
 ### Requirement: Automatic backup after write activity settles
 
 The system SHALL automatically back up the signed-in user's categories and entries to Google Drive shortly after write activity (creating, editing, or deleting a category or entry) settles, without requiring the user to manually trigger it.
