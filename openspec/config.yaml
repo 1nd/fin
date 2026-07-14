@@ -1,0 +1,20 @@
+schema: spec-driven
+
+context: |
+  Fin: personal finance app (net worth + budgeting) replacing spreadsheets.
+  READ openspec/plan.md before creating any artifact — it holds the overview
+  plan: core thesis (dated facts + as-of lookup), all settled design
+  decisions (balance model, categories, multi-currency, identity, backup,
+  localization, theming), the phasing, and the Phase 1 change roadmap with
+  its dependency order.
+  Tech: TypeScript; Clean Code Architecture layer tags per AGENTS.md.
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
