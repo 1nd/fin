@@ -137,13 +137,17 @@ monthly copies, ever.
 
 ### Theming & UI
 
-- **Semantic design tokens from the first component** (CSS custom
-  properties). Components never mention raw colors; a theme is a token set.
-  Phase 1 ships Dark only; Light / colorblind-friendly themes later are one
-  token file each.
+- **Semantic design tokens from the first component.** Components never
+  mention raw colors; a theme is a token set. Phase 1 ships Dark only;
+  later themes (e.g. Light, colorblind-friendly) ship as new token sets
+  with no app rewrite.
 - **Never encode meaning by color alone** (income/expense, chart series):
   pair color with sign, icon, or label.
-- **Responsive from Phase 1:** desktop + tablet + phone browser.
+- **Responsive from Phase 1:** desktop + tablet + phone browser. Desktop
+  web stays first-class in every phase. Once Phase Y ships iOS/Android,
+  web/iOS/Android have freedom to implement a given feature differently
+  per platform — typically because a native OS offers a capability the
+  browser doesn't — but the goal is no feature gaps between them.
 
 ### Architecture
 
@@ -159,10 +163,14 @@ monthly copies, ever.
   constraints; concrete picks (UI framework, styling tech, test runner, CI
   provider) are design.md decisions — nearly all in ① app-foundation.
   Constraints the picks must satisfy:
-  - UI framework lives only in CCA layer 4; layers 1–2 stay pure TS. Prefer
-    a framework that eases Phase Y (iOS/Android) reuse.
-  - Styling tech must consume the semantic token layer (CSS custom
-    properties); no hardcoded colors regardless of approach.
+  - UI framework lives only in CCA layer 4; layers 1–2 stay pure TS.
+    Adding iOS/Android — whenever it's prioritized; phase ordering is not
+    a promise of distance — must not require an app rewrite: everything
+    below the layer-4 UI ring ports unchanged, and layer 4 stays thin
+    (presentational components; behavior in pure functions and DOM-free
+    hooks) so the port surface is screens and styling only.
+  - Styling tech must consume the semantic token layer; no hardcoded
+    colors regardless of approach.
 - **Testing:** layers 1–2 hold all the interesting math (balance derivation,
   rollups, as-of rate lookup, preference cascade) and are pure — they get
   fast unit tests written alongside the code. Adapters/UI get lighter
