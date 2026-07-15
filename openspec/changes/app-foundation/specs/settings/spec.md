@@ -21,11 +21,11 @@ The system SHALL offer exactly these values in Phase 1: language `en` or `id`; n
 - **THEN** no 12-hour/24-hour choice exists and any displayed time uses 24-hour format
 
 ### Requirement: Default cascade
-The system SHALL derive each preference's default by a pure function evaluating, in order: account locale (absent until Google Sign-In lands), then browser locale, then a built-in fallback. A stored user override SHALL always take precedence over the cascade.
+The system SHALL derive each preference's default by a pure function evaluating, in order: account locale (absent until Google Sign-In lands), then browser locale, then a built-in fallback. A stored user override SHALL always take precedence over the cascade. The date format default SHALL be `YYYY-MM-DD` (ISO 8601) for every locale — locale determines only the language and number format defaults.
 
 #### Scenario: Browser locale supplies defaults before sign-in exists
 - **WHEN** a user with no stored overrides and an Indonesian browser locale opens the app
-- **THEN** defaults resolve from the browser locale (language `id` and matching number/date formats)
+- **THEN** defaults resolve from the browser locale (language `id`, number format `1.234,56`) with date format `YYYY-MM-DD`
 
 #### Scenario: Fallback when locale is unrecognized
 - **WHEN** a user with no stored overrides has a browser locale the app does not recognize
