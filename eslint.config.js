@@ -23,4 +23,27 @@ export default tseslint.config(
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/i18n/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'react-i18next',
+              message:
+                "Import from 'src/i18n/useTranslation' instead; only src/i18n/ may touch the library.",
+            },
+            {
+              name: 'i18next',
+              message:
+                "Import the configured instance from 'src/i18n/i18n' instead; only src/i18n/ may touch the library.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 );
