@@ -19,10 +19,10 @@
 
 ## 3. Preference domain (entities + use cases)
 
-- [ ] 3.1 Implement entity-layer preference model: preference types/values (language en/id, separator styles, three date formats, theme dark) and the locale→defaults mapping, with unit tests
-- [ ] 3.2 Implement the pure cascade `resolvePreferences(accountLocale, browserLocale, overrides)` with built-in fallback, covering override-beats-cascade, unrecognized locale, and null `accountLocale` in unit tests
-- [ ] 3.3 Implement pure number and date formatters driven by preference (not language), 24-hour time only, with unit tests
-- [ ] 3.4 Implement the layer-2 settings use case (load overrides via the port, compute effective prefs, save an override) tested against an in-memory repository
+- [x] 3.1 Implement entity-layer preference model: preference types/values (language en/id, separator styles, three date formats, theme dark) and the locale→defaults mapping, with unit tests
+- [x] 3.2 Implement the pure cascade `resolvePreferences(accountLocale, browserLocale, overrides)` with built-in fallback, covering override-beats-cascade, unrecognized locale, and null `accountLocale` in unit tests
+- [x] 3.3 Implement pure number and date formatters driven by preference (not language), 24-hour time only, with unit tests
+- [x] 3.4 Implement the layer-2 Settings use case (load overrides via the port, compute effective prefs, save an override) tested against an in-memory repository
 
 ## 4. Shell & Settings UI
 

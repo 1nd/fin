@@ -159,6 +159,13 @@ monthly copies, ever.
 
 ### Engineering practices
 
+- **Requirements are informed by, not coupled to, real-world practice.**
+  Real-world situations (market conventions, quoting practices, regulations)
+  are evidence motivating a requirement, never its source of truth. In
+  rationale, cite them as examples ("informed by, e.g., Indonesian fund unit
+  prices being quoted to four decimals"), not as the normative basis
+  ("because X does Y, the system SHALL…"). If the practice shifts, the
+  requirement is reassessed deliberately — it never updates automatically.
 - **Decide tech in the change that first needs it.** plan.md records
   constraints; concrete picks (UI framework, styling tech, test runner, CI
   provider) are design.md decisions — nearly all in ① app-foundation.
