@@ -2,12 +2,12 @@
 
 ## 1. Scaffolding & tooling
 
-- [ ] 1.1 Add `.nvmrc` (current Node LTS) and scaffold a Vite + React 19 + TypeScript app in the repo root (strict tsconfig), verifying `npm run dev` serves the default page
-- [ ] 1.2 Configure ESLint (flat config, typescript-eslint strict) and Prettier, with husky + lint-staged running both on pre-commit per AGENTS.md
-- [ ] 1.3 Add Vitest (+ Testing Library, fake-indexeddb) with a trivial passing test wired into `npm test`
-- [ ] 1.4 Create the feature-first source layout (`src/app/`, `src/shell/`, `src/settings/`, `src/storage/`, `src/i18n/`, `src/theme/`), move the Vite entry files under `src/app/`, and tag every source file `// CCA: <n>` on line 1 per its role
-- [ ] 1.5 Push to GitHub (done manually by the user; agent stops here and hands off)
-- [ ] 1.6 Add a GitHub Actions workflow running install → lint → typecheck → test → build on every push, with all third-party actions (e.g. `actions/checkout`, `actions/setup-node`) pinned to full commit SHAs (version noted in a trailing comment); add `dependabot.yml` for the `github-actions` ecosystem so pinned SHAs get version-bump PRs; confirm the workflow passes
+- [x] 1.1 Add `.nvmrc` (current Node LTS) and scaffold a Vite + React 19 + TypeScript app in the repo root (strict tsconfig), verifying `npm run dev` serves the default page
+- [x] 1.2 Configure ESLint (flat config, typescript-eslint strict) and Prettier, with husky + lint-staged running both on pre-commit per AGENTS.md
+- [x] 1.3 Add Vitest (+ Testing Library, fake-indexeddb) with a trivial passing test wired into `npm test`
+- [x] 1.4 Create the feature-first source layout (`src/app/`, `src/shell/`, `src/settings/`, `src/storage/`, `src/i18n/`, `src/theme/`), move the Vite entry files under `src/app/`, and tag every source file `// CCA: <n>` on line 1 per its role
+- [x] 1.5 Push to GitHub (done manually by the user; agent stops here and hands off)
+- [x] 1.6 Add a GitHub Actions workflow running install → lint → typecheck → test → build on every push, with all third-party actions (e.g. `actions/checkout`, `actions/setup-node`) pinned to full commit SHAs (version noted in a trailing comment); add `dependabot.yml` for the `github-actions` ecosystem so pinned SHAs get version-bump PRs; confirm the workflow passes
 
 ## 2. Foundations: tokens, i18n, storage
 
