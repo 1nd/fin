@@ -95,7 +95,7 @@ monthly copies, ever.
 ### Identity, storage, backup
 
 - **Google Sign-In** for identity, **required before entering data** and
-  landing early in the roadmap (right after the foundation). In Phase 1 it is
+  landing early in the roadmap (before any data-entry change). In Phase 1 it is
   *identity convenience, not a security boundary* — anyone with browser access
   can see the data. Payoffs: no registration flow, locale defaults, Drive
   permission for backup.
@@ -149,6 +149,33 @@ monthly copies, ever.
   per platform — typically because a native OS offers a capability the
   browser doesn't — but the goal is no feature gaps between them.
 
+### URLs & navigation
+
+- **Views are URL-addressable and browser back navigates within the app**
+  (e.g. Settings at `/settings`), with refresh restoring the current view.
+  Established in (H) (url-routing); from (H) onward an obligation on every
+  change, like i18n and tokens.
+- **Selective addressability:** routing makes a bookmarkable, shareable URL
+  *possible* wherever one is wanted — never mandatory everywhere. Each
+  change decides which of its views (or entities) earn URLs; the target is
+  never making everything bookmark-able.
+- **History-API URLs (clean paths), not hash URLs.** Discipline: every link
+  goes through the router, so hash mode remains a config-level fallback
+  rather than a rewrite if a host ever demands it.
+- **Deployment must never force a rewrite.** Phase 1 hosting is
+  deliberately undecided (the author runs Fin via localhost for now); no
+  specific host, path prefix, or server capability may be assumed in app
+  code. That Phase 1's build output happens to be a static SPA is a fact,
+  not a commitment: it keeps the cheapest hosts available (static
+  platforms — which must then serve the app for unknown paths, "SPA
+  fallback", for history-API URLs to work) while never precluding
+  server-backed deployment — Phase X adds a server as an addition, not a
+  rewrite.
+- **Action URLs (a URL that performs on visit, e.g. sign-out) are a
+  footgun:** browsers may prerender a typed URL and execute the app,
+  firing the action. Any change shipping one must guard the side effect
+  (confirmation step or prerender check); policy recorded in (H)'s design.
+
 ### Architecture
 
 - Clean Code Architecture layers per `AGENTS.md` (`// CCA: <n>` tags,
@@ -168,7 +195,8 @@ monthly copies, ever.
   requirement is reassessed deliberately — it never updates automatically.
 - **Decide tech in the change that first needs it.** plan.md records
   constraints; concrete picks (UI framework, styling tech, test runner, CI
-  provider) are design.md decisions — nearly all in ① app-foundation.
+  provider) are design.md decisions — nearly all in (A) (app-foundation);
+  the URL router pick is (H)'s (url-routing).
   Constraints the picks must satisfy:
   - UI framework lives only in CCA layer 4; layers 1–2 stay pure TS.
     Adding iOS/Android — whenever it's prioritized; phase ordering is not
@@ -181,13 +209,13 @@ monthly copies, ever.
 - **Testing:** layers 1–2 hold all the interesting math (balance derivation,
   rollups, as-of rate lookup, preference cascade) and are pure — they get
   fast unit tests written alongside the code. Adapters/UI get lighter
-  testing. Runner chosen in ①. Like i18n and tokens, a discipline from ①
+  testing. Runner chosen in (A). Like i18n and tokens, a discipline from (A)
   onward, not a standalone change.
-- **CI:** from ① onward, lint + tests run automatically on every push
-  (provider chosen in ① alongside repo hosting; ESLint/Prettier also run on
+- **CI:** from (A) onward, lint + tests run automatically on every push
+  (provider chosen in (A) alongside repo hosting; ESLint/Prettier also run on
   commit per AGENTS.md).
 - **Every change ships a runnable app, manually testable locally.** E.g.
-  after ①: open the app, see the responsive shell in dark theme, switch
+  after (A): open the app, see the responsive shell in dark theme, switch
   language and formats in Settings. Placeholder content is fine; a change
   whose result can't be seen and clicked locally is mis-scoped. Every
   change's tasks end with a manual verification step.
@@ -207,57 +235,76 @@ direction whose exact sequence/numbering is deliberately undecided.
 ## Phase 1 change roadmap
 
 ```
- ①  app-foundation
+ (A)  app-foundation
  │   repo + tooling init (framework pick, lint/format, tests, CI), shell,
  │   CCA layout, IndexedDB adapter (keyed by userId), i18n (en/id),
  │   theme tokens (dark), responsive layout,
  │   Settings page with preference cascade (lang/number/date/theme)
  │
- ②  google-signin
- │   Google identity, required before data entry; per-account data
- │   partitions (multi-account on same browser); sign-out / switching
+ (H)  url-routing
+ │   history-API URL routing behind the shell's navigation seam: existing
+ │   views addressable (`/`, `/settings`), browser back navigates within
+ │   the app, refresh restores the view; router pick + action-URL safety
+ │   policy in its design.md
  │
- ③  accounts-and-snapshots
+ (B)  google-signin
+ │   Google identity, required before data entry; per-account data
+ │   partitions (multi-account on same browser); sign-out / switching;
+ │   popup OAuth UX (no server → redirect flows unavailable; only
+ │   origins whitelisted in the Google OAuth client, no redirect URIs)
+ │
+ (C)  accounts-and-snapshots
  │   shared tree mechanism, account tree (asset/liability, grouping,
  │   split/merge with close-out), dated balance snapshots,
  │   net worth "as of today" with subtree rollup — single currency
  │        │
- │        ├──── ④  backup
+ │        ├──── (D)  backup
  │        │      JSON export/import, Drive backup + restore (appDataFolder)
  │        │      with divergence guard; recovers from storage eviction
  │        │      and lost/replaced devices
  │        │
- │        ├──── ⑤  categories-and-transactions
+ │        ├──── (E)  categories-and-transactions
  │        │      category tree (reuses tree mechanism), transactions
  │        │      (require account), snapshot-anchored balance derivation,
  │        │      untracked-delta signal
  │        │
- │        └──── ⑥  multi-currency
+ │        └──── (F)  multi-currency
  │               currency on entries, central rate table, write-prompt /
  │               read-carry-forward, base currency as reporting preference
  │                    │
- ⑤ ⑥ ────────────────┴──── ⑦  reporting
+ (E) (F) ─────────────┴──── (G)  reporting
                             net worth trend, category trends, staleness flags
 ```
 
-- **② early on purpose:** identity precedes every data-entry feature, so all
+- **Labels are identifiers, not ordinals** — assigned once, never
+  renumbered; execution order and dependencies live in the diagram's
+  arrows. (H) postdates the (A)–(G) labeling (it was inserted later), hence the
+  out-of-sequence letter for a change that runs second. New changes take
+  the next free letter wherever they slot in.
+- **(H) inserted before (B) on purpose:** (B)'s sign-in gate is navigation policy
+  — a signed-out visit to an addressable view must survive sign-in and
+  land where it intended. Landing URL routing first lets (B) design the gate
+  against the final navigation model instead of reworking it in a later
+  change, and routing is at its cheapest while the app is two static
+  views.
+- **(B) early on purpose:** identity precedes every data-entry feature, so all
   records are born under their owner's Google id — friends can test-drive on
   any browser (including the author's) as distinct users, and no local-user
   migration ever exists.
-- **③ is the earliest "stop using Sheets" moment:** enter monthly balances,
+- **(C) is the earliest "stop using Sheets" moment:** enter monthly balances,
   see net worth — the spreadsheet's core ritual replaced, exercising the
   whole stack on the simplest entity.
-- **④ early on purpose:** backup guards real data from the moment it exists
+- **(D) early on purpose:** backup guards real data from the moment it exists
   (browser eviction, broken laptop → sign in on a new device and restore).
-  Needs only ② plus something worth backing up.
-- **⑤ and ⑥ are independent** — sequence by personal urgency. ⑦ needs both
+  Needs only (B) plus something worth backing up.
+- **(E) and (F) are independent** — sequence by personal urgency. (G) needs both
   (trends must revalue currencies *and* roll up categories).
 - **Cross-cutting disciplines (i18n, tokens, responsiveness, CCA) are not
-  changes** — they're established in ① and are obligations on every
-  subsequent change.
-- Expected main-spec capabilities these changes build up: `settings`,
-  `accounts`, `transactions`, `categories`, `currency`, `reporting`,
-  `identity`, `backup`.
+  changes** — they're established in (A) (URL addressability in (H)) and are
+  obligations on every subsequent change.
+- Expected main-spec capabilities these changes build up: `app-shell`,
+  `settings`, `accounts`, `transactions`, `categories`, `currency`,
+  `reporting`, `identity`, `backup`.
 - **Propose one change at a time** (propose → implement → archive → next), so
   each proposal is written against the actual state of the code and learning
   folds forward instead of invalidating queued proposals.
