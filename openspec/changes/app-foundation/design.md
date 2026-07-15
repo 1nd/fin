@@ -49,12 +49,13 @@ Layer 2 defines a `SettingsRepository` (later changes add their own ports); laye
 - `userId` is always a parameter flowing through the port — never read from a global — so swapping the placeholder for the Google id in ② touches only the identity provider, not storage code.
 - Placeholder id: the constant `"local-placeholder"`, defined in one place.
 - App startup calls `navigator.storage.persist()`; result is logged, never blocks.
+- The adapter shares one lazily opened connection; a failed open is never cached — the next call retries, so a transient failure heals without a reload.
 
 Alternatives: raw IndexedDB API (verbose, error-prone), Dexie (larger abstraction whose query layer we don't need), localStorage (no structure, no room for the record schema).
 
 ### D6. Source layout: feature-first folders; CCA enforced by tags, not directories
 
-Directories are organized by feature/ownership, not by CCA layer. Starting layout for this change: `src/settings/` (preference model, cascade, formatters, `SettingsRepository` port, settings use case, Settings page), `src/shell/` (navigation frame, landing), and the shared infrastructure every feature would otherwise duplicate — `src/storage/` (record conventions, IndexedDB adapter), `src/i18n/`, `src/theme/`, `src/app/` (bootstrap, providers, routing). A feature folder freely contains files of several layers; what enforces the dependency rule is each file's line-1 `// CCA: <n>` tag (derived from the file's *role* — who depends on it, which way its imports point) plus import-direction review, exactly as AGENTS.md prescribes. Any import is checkable by comparing two numbers; no directory structure is needed for that.
+Directories are organized by feature/ownership, not by CCA layer. Starting layout for this change: `src/settings/` (preference model, cascade, formatters, `SettingsRepository` port and its IndexedDB adapter, settings use case, Settings page), `src/shell/` (navigation frame, landing), and the shared infrastructure every feature would otherwise duplicate — `src/storage/` (record conventions, shared IndexedDB connection), `src/i18n/`, `src/theme/`, `src/app/` (bootstrap, providers, routing). An adapter lives with the feature that owns its port — the settings adapter changes when settings requirements change, so it is settings code; `src/storage/` holds only what every feature's persistence would otherwise duplicate. The boundary test is ownership plus opinion: a file opinionated toward one module's business logic belongs to that module, while unopinionated code designed to be shareable may sit in an infra folder even while it still has a single consumer. A feature folder freely contains files of several layers; what enforces the dependency rule is each file's line-1 `// CCA: <n>` tag (derived from the file's *role* — who depends on it, which way its imports point) plus import-direction review, exactly as AGENTS.md prescribes. Any import is checkable by comparing two numbers; no directory structure is needed for that.
 
 Layer-named top-level folders were considered and rejected on real-world team experience: they invite the misreading that separating directories *is* separating concerns, and they generate churn as files get moved solely to satisfy the layout. Ownership-aligned folders keep handover clean, are legible to new contributors, and let someone work on a feature without understanding the whole app.
 
@@ -64,7 +65,7 @@ The cascade is a layer-1 pure function: `resolvePreferences(accountLocale | null
 
 ### D8. Testing: Vitest (+ Testing Library for the thin UI layer)
 
-Vitest shares Vite's config/transform pipeline. Layers 1–2 (cascade, locale mapping, formatters, settings use case with an in-memory repository) get thorough unit tests written alongside the code; UI gets a light smoke test (shell renders, language switch flips a visible string). `fake-indexeddb` covers adapter tests without a browser. Alternative: Jest — slower and duplicate config next to Vite.
+Vitest shares Vite's config/transform pipeline. Layers 1–2 (cascade, locale mapping, formatters, settings use case with an in-memory repository) get thorough unit tests written alongside the code; UI gets a light smoke test (shell renders, language switch flips a visible string). `fake-indexeddb` covers adapter tests without a browser; each test case gets a fresh database instance (no state shared between tests, no key-space conventions to remember). Alternative: Jest — slower and duplicate config next to Vite.
 
 ### D9. Repo hosting & CI: GitHub + GitHub Actions
 

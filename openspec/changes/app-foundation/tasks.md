@@ -11,22 +11,22 @@
 
 ## 2. Foundations: tokens, i18n, storage
 
-- [ ] 2.1 Create `tokens.css` defining the semantic token set and dark theme values (scoped by `data-theme="dark"`); wire it into the app root
-- [ ] 2.2 Set up i18next + react-i18next with `en.json` and `id.json` catalogs and a helper so components only ever call `t()`
-- [ ] 2.3 Define the storage record conventions (record `{ id, userId, ...payload, updatedAt, deletedAt? }`, placeholder userId constant `"local-placeholder"`) and the layer-2 `SettingsRepository` port
-- [ ] 2.4 Implement the IndexedDB adapter with `idb` (settings store keyPath `[userId, key]`, tombstone deletes) plus adapter tests on fake-indexeddb
-- [ ] 2.5 Request `navigator.storage.persist()` at startup, logging the outcome without blocking
+- [x] 2.1 Create `tokens.css` defining the semantic token set and dark theme values (scoped by `data-theme="dark"`); wire it into the app root
+- [x] 2.2 Set up i18next + react-i18next with `en.json` and `id.json` catalogs and a helper so components only ever call `t()`
+- [x] 2.3 Define the storage record conventions (record `{ id, userId, ...payload, updatedAt, deletedAt? }`, placeholder `userId` constant `"local-placeholder"`) and the layer-2 `SettingsRepository` port
+- [x] 2.4 Implement the IndexedDB adapter with `idb` (settings store keyPath `[userId, key]`, tombstone deletes) plus adapter tests on fake-indexeddb
+- [x] 2.5 Request `navigator.storage.persist()` at startup, logging the outcome without blocking
 
 ## 3. Preference domain (entities + use cases)
 
 - [ ] 3.1 Implement entity-layer preference model: preference types/values (language en/id, separator styles, three date formats, theme dark) and the locale→defaults mapping, with unit tests
-- [ ] 3.2 Implement the pure cascade `resolvePreferences(accountLocale, browserLocale, overrides)` with built-in fallback, covering override-beats-cascade, unrecognized locale, and null accountLocale in unit tests
+- [ ] 3.2 Implement the pure cascade `resolvePreferences(accountLocale, browserLocale, overrides)` with built-in fallback, covering override-beats-cascade, unrecognized locale, and null `accountLocale` in unit tests
 - [ ] 3.3 Implement pure number and date formatters driven by preference (not language), 24-hour time only, with unit tests
 - [ ] 3.4 Implement the layer-2 settings use case (load overrides via the port, compute effective prefs, save an override) tested against an in-memory repository
 
 ## 4. Shell & Settings UI
 
-- [ ] 4.1 Build the responsive app shell: navigation frame + placeholder landing page, styled only via tokens, laying out correctly at phone/tablet/desktop widths; establish the thin-component pattern (presentational components, behavior in pure functions and DOM-free hooks) per design D1
+- [ ] 4.1 Build the responsive app shell: navigation frame + placeholder landing page, styled only via tokens, laying out correctly at phone/tablet/desktop widths; establish the thin-component pattern (presentational components, behavior in pure functions and DOM-free hooks) per design D1. Delete the Vite scaffold placeholders — `src/app/index.css`, `src/app/App.css`, and the demo `App.tsx` content plus its assets — rather than migrating them; no new file may reference the Vite `--text`/`--accent` variable set (only `tokens.css` tokens)
 - [ ] 4.2 Add the preferences React context/provider that computes effective prefs at startup and applies them (i18next language, `data-theme`, formatters), re-rendering on change
 - [ ] 4.3 Build the Settings page: show effective values for language, number format, date format, theme; changing one persists the override and applies immediately, leaving the others untouched
 - [ ] 4.4 Fill both catalogs so every shell/Settings string is localized (no hardcoded user-facing strings), and add a UI smoke test: shell renders, switching language flips a visible string
@@ -34,4 +34,4 @@
 ## 5. Verification
 
 - [ ] 5.1 Run the full CI suite locally (lint, typecheck, tests, build) and confirm the GitHub Actions run is green
-- [ ] 5.2 Manual verification per plan.md: open the app locally — responsive dark shell at phone/tablet/desktop widths; in Settings switch language to Indonesian, change number and date formats; reload and confirm all preferences are retained and applied
+- [ ] 5.2 Manual verification per `plan.md`: open the app locally — responsive dark shell at phone/tablet/desktop widths; in Settings switch language to Indonesian, change number and date formats; reload and confirm all preferences are retained and applied
