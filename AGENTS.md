@@ -11,6 +11,13 @@
 
 ESLint and Prettier are run automatically when Git committing. So, no need to run them on each changes.
 
+## Visual verification of UI changes
+
+Unit tests run in jsdom, which does no real layout — it cannot verify responsive behavior, CSS rendering, or anything visual. For changes that touch UI:
+
+1. If a real browser is available to you (e.g. headless Chromium), launch the dev server and verify visually — for responsive work, at phone (~375px), tablet, and desktop widths.
+2. If the environment has no browser (common in sandboxes: no Chromium binary, no sudo to install one), do not silently skip: state explicitly what was and wasn't visually verified, and defer the visual check to the change's manual verification task, which the user runs locally.
+
 # Clean Code Architecture Layers (`// CCA: <n>` tags)
 
 Source files under `src/` start with a `// CCA: <n>` comment declaring their Clean Code Architecture (CCA) layer:

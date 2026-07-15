@@ -26,12 +26,12 @@
 
 ## 4. Shell & Settings UI
 
-- [ ] 4.1 Build the responsive app shell: navigation frame + placeholder landing page, styled only via tokens, laying out correctly at phone/tablet/desktop widths; establish the thin-component pattern (presentational components, behavior in pure functions and DOM-free hooks) per design D1. Delete the Vite scaffold placeholders — `src/app/index.css`, `src/app/App.css`, and the demo `App.tsx` content plus its assets — rather than migrating them; no new file may reference the Vite `--text`/`--accent` variable set (only `tokens.css` tokens)
-- [ ] 4.2 Add the preferences React context/provider that computes effective prefs at startup and applies them (i18next language, `data-theme`, formatters), re-rendering on change
-- [ ] 4.3 Build the Settings page: show effective values for language, number format, date format, theme; changing one persists the override and applies immediately, leaving the others untouched
-- [ ] 4.4 Fill both catalogs so every shell/Settings string is localized (no hardcoded user-facing strings), and add a UI smoke test: shell renders, switching language flips a visible string
+- [x] 4.1 Build the responsive app shell: navigation frame + placeholder landing page, styled only via tokens, laying out correctly at phone/tablet/desktop widths; establish the thin-component pattern (presentational components, behavior in pure functions and DOM-free hooks) per design D1. Delete the Vite scaffold placeholders — `src/app/index.css`, `src/app/App.css`, and the demo `App.tsx` content plus its assets — rather than migrating them; no new file may reference the Vite `--text`/`--accent` variable set (only `tokens.css` tokens)
+- [x] 4.2 Add the preferences React context/provider that computes effective prefs at startup and applies them (i18next language, `data-theme`, formatters), re-rendering on change
+- [x] 4.3 Build the Settings page: show effective values for language, number format, date format, theme; changing one persists the override and applies immediately, leaving the others untouched
+- [x] 4.4 Fill both catalogs so every shell/Settings string is localized (no hardcoded user-facing strings), and add a UI smoke test: shell renders, switching language flips a visible string
 
 ## 5. Verification
 
-- [ ] 5.1 Run the full CI suite locally (lint, typecheck, tests, build) and confirm the GitHub Actions run is green
-- [ ] 5.2 Manual verification per `plan.md`: open the app locally — responsive dark shell at phone/tablet/desktop widths; in Settings switch language to Indonesian, change number and date formats; reload and confirm all preferences are retained and applied
+- [x] 5.1 Run the full CI suite locally (lint, typecheck, tests, build) and confirm the GitHub Actions run is green
+- [x] 5.2 Manual verification per `plan.md`: open the app locally — responsive dark shell at phone/tablet/desktop widths; in Settings switch language to Indonesian, change number and date formats; reload and confirm all preferences are retained and applied
