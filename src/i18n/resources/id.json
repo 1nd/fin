@@ -1,3 +1,29 @@
 {
-  "greeting": "Selamat datang di Fin"
+  "shell": {
+    "brand": "Fin",
+    "navLabel": "Utama",
+    "nav": {
+      "home": "Beranda",
+      "settings": "Pengaturan"
+    }
+  },
+  "landing": {
+    "title": "Selamat datang di Fin",
+    "body": "Semua keuangan Anda, di satu tempat."
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "languageLabel": "Bahasa",
+    "languageOptionEn": "Inggris",
+    "languageOptionId": "Indonesia",
+    "numberFormatLabel": "Format angka",
+    "numberFormatOptionPeriodDecimal": "1,234.56",
+    "numberFormatOptionCommaDecimal": "1.234,56",
+    "dateFormatLabel": "Format tanggal",
+    "dateFormatOptionIso": "YYYY-MM-DD",
+    "dateFormatOptionDmy": "DD-MM-YYYY",
+    "dateFormatOptionMdy": "MM-DD-YYYY",
+    "themeLabel": "Tema",
+    "themeOptionDark": "Gelap"
+  }
 }

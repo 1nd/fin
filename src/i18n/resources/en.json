@@ -1,3 +1,29 @@
 {
-  "greeting": "Welcome to Fin"
+  "shell": {
+    "brand": "Fin",
+    "navLabel": "Primary",
+    "nav": {
+      "home": "Home",
+      "settings": "Settings"
+    }
+  },
+  "landing": {
+    "title": "Welcome to Fin",
+    "body": "Your finances, all in one place."
+  },
+  "settings": {
+    "title": "Settings",
+    "languageLabel": "Language",
+    "languageOptionEn": "English",
+    "languageOptionId": "Indonesian",
+    "numberFormatLabel": "Number format",
+    "numberFormatOptionPeriodDecimal": "1,234.56",
+    "numberFormatOptionCommaDecimal": "1.234,56",
+    "dateFormatLabel": "Date format",
+    "dateFormatOptionIso": "YYYY-MM-DD",
+    "dateFormatOptionDmy": "DD-MM-YYYY",
+    "dateFormatOptionMdy": "MM-DD-YYYY",
+    "themeLabel": "Theme",
+    "themeOptionDark": "Dark"
+  }
 }
