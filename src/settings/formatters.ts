@@ -15,6 +15,14 @@ export function formatNumber(
   fractionDigits?: number,
 ): string {
   if (!Number.isFinite(value)) return String(value);
+  // Contract, not defense: fractionDigits is a fixed digit count. A fractional
+  // or negative value has no meaning and would corrupt the string-space math
+  // below (e.g. fraction.slice(0, 2.5)) — fail loudly rather than emit garbage.
+  if (fractionDigits !== undefined && (!Number.isInteger(fractionDigits) || fractionDigits < 0)) {
+    throw new RangeError(
+      `formatNumber: fractionDigits must be a non-negative integer, got ${fractionDigits}`,
+    );
+  }
   const { thousands, decimal } = SEPARATORS[style];
   const rounded =
     fractionDigits === undefined

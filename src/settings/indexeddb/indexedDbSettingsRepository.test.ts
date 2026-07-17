@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { IDBFactory } from 'fake-indexeddb';
-import { closeDb } from '../../storage/db';
+import { closeDb, getDb } from '../../storage/db';
+import type { SettingsRecord } from '../settingsRepository';
 import { IndexedDbSettingsRepository } from './indexedDbSettingsRepository';
 
 describe('IndexedDbSettingsRepository', () => {
@@ -40,5 +41,19 @@ describe('IndexedDbSettingsRepository', () => {
     const record = await repo.get('user-1', 'language');
     expect(record?.value).toBe('en');
     expect(record?.deletedAt).toBeUndefined();
+  });
+
+  it('does not resurrect a stale value when a write races the remove', async () => {
+    await repo.set('user-1', 'language', 'id');
+
+    // A concurrent write lands while remove is mid-flight. Because remove's
+    // read and tombstone-write share one transaction, remove sees the fresh
+    // 'en' value rather than re-committing the stale 'id' it would otherwise
+    // have read first.
+    await Promise.all([repo.remove('user-1', 'language'), repo.set('user-1', 'language', 'en')]);
+
+    const db = await getDb();
+    const raw = (await db.get('settings', ['user-1', 'language'])) as SettingsRecord;
+    expect(raw.value).toBe('en');
   });
 });
