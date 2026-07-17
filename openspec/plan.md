@@ -172,9 +172,17 @@ monthly copies, ever.
   server-backed deployment — Phase X adds a server as an addition, not a
   rewrite.
 - **Action URLs (a URL that performs on visit, e.g. sign-out) are a
-  footgun:** browsers may prerender a typed URL and execute the app,
-  firing the action. Any change shipping one must guard the side effect
-  (confirmation step or prerender check); policy recorded in (H)'s design.
+  footgun:** browsers may prerender/prefetch a typed URL and execute the
+  app, firing the action without user intent. Policy (decided in (H),
+  binding on every change): (1) default is to not ship action URLs —
+  side effects belong on explicit in-page interactions, which are never
+  prerendered; (2) a change with a real reason to ship one must have the
+  URL render an inert confirmation view whose side effect fires only on
+  an explicit user gesture — a gesture requirement inherently defeats
+  prerender; `document.prerendering` checks are defense-in-depth, not
+  sufficient alone; (3) any action URL's spec must include a "visited by
+  prerender/prefetch → no side effect" scenario. The spec-level
+  requirement lives in the `url-routing` capability.
 
 ### Architecture
 
@@ -206,6 +214,18 @@ monthly copies, ever.
     hooks) so the port surface is screens and styling only.
   - Styling tech must consume the semantic token layer; no hardcoded
     colors regardless of approach.
+- **Corner test (every tech/infra pick must pass it).** An addition or
+  modification to Fin must never require rewriting foundation/infra that
+  has nothing to do with it — if it does, we trapped ourselves in a
+  corner. Justify picks against Fin's eventual shape, never its current
+  size ("only two routes today" is not an argument for or against a
+  router). A migration or rewrite is acceptable when it is cheap and
+  touches only the parts that exist for the rewritten concern; a design
+  that picks the simpler option over one that scales better must show the
+  later migration stays localized by naming the confined surface it would
+  touch (e.g. (H): route table + provider + links, all layer 4). Existing
+  bounds are instances of this test: adding iOS/Android must not require
+  an app rewrite; deployment must never force a rewrite.
 - **Testing:** layers 1–2 hold all the interesting math (balance derivation,
   rollups, as-of rate lookup, preference cascade) and are pure — they get
   fast unit tests written alongside the code. Adapters/UI get lighter
@@ -244,8 +264,8 @@ direction whose exact sequence/numbering is deliberately undecided.
  (H)  url-routing
  │   history-API URL routing behind the shell's navigation seam: existing
  │   views addressable (`/`, `/settings`), browser back navigates within
- │   the app, refresh restores the view; router pick + action-URL safety
- │   policy in its design.md
+ │   the app, refresh restores the view; router pick decided in its
+ │   design.md; action-URL safety policy in "URLs & navigation" above
  │
  (B)  google-signin
  │   Google identity, required before data entry; per-account data
