@@ -34,4 +34,26 @@ describe('getDb', () => {
     await deleteDB('fin');
     await expect(getDb()).resolves.toBeDefined();
   });
+
+  it('yields its connection so another tab upgrading the schema is not blocked indefinitely', async () => {
+    await getDb();
+
+    // Simulates another tab requesting a schema upgrade while this tab's
+    // connection (opened via getDb() above) is still open. Without the
+    // `blocking` handler closing our connection, this would hang forever.
+    const upgraded = await openDB('fin', 2, { upgrade() {} });
+
+    expect(upgraded.version).toBe(2);
+    upgraded.close();
+  });
+
+  it('does not disturb a connection when another tab opens at the same version', async () => {
+    const db = await getDb();
+
+    const sameVersion = await openDB('fin', 1);
+    // The original connection was never closed by the same-version peer.
+    expect(() => db.transaction('settings')).not.toThrow();
+
+    sameVersion.close();
+  });
 });

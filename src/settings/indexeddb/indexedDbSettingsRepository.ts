@@ -23,8 +23,15 @@ export class IndexedDbSettingsRepository implements SettingsRepository {
 
   async remove(userId: string, key: string): Promise<void> {
     const db = await getDb();
-    const existing = (await db.get('settings', [userId, key])) as SettingsRecord | undefined;
-    if (!existing) return;
-    await db.put('settings', { ...existing, deletedAt: new Date().toISOString() });
+    // Read and tombstone-write share one transaction so the read-modify-write is
+    // atomic: a concurrent writer (another tab now, another device via sync
+    // later) can't commit between them and have this blind put resurrect the
+    // stale value we read.
+    const tx = db.transaction('settings', 'readwrite');
+    const existing = (await tx.store.get([userId, key])) as SettingsRecord | undefined;
+    if (existing) {
+      await tx.store.put({ ...existing, deletedAt: new Date().toISOString() });
+    }
+    await tx.done;
   }
 }

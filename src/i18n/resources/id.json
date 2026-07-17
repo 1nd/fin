@@ -29,6 +29,7 @@
     "dateFormatOptionDmy": "DD-MM-YYYY",
     "dateFormatOptionMdy": "MM-DD-YYYY",
     "themeLabel": "Tema",
-    "themeOptionDark": "Gelap"
+    "themeOptionDark": "Gelap",
+    "saveError": "Pengaturan tidak dapat disimpan. Perubahan mungkin hilang saat halaman dimuat ulang."
   }
 }

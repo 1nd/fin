@@ -29,6 +29,7 @@
     "dateFormatOptionDmy": "DD-MM-YYYY",
     "dateFormatOptionMdy": "MM-DD-YYYY",
     "themeLabel": "Theme",
-    "themeOptionDark": "Dark"
+    "themeOptionDark": "Dark",
+    "saveError": "Couldn't save your settings. Changes may be lost when you reload."
   }
 }

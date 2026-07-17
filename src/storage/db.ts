@@ -13,6 +13,21 @@ export function getDb(): Promise<IDBPDatabase> {
         db.createObjectStore('settings', { keyPath: ['userId', 'key'] });
       }
     },
+    blocked(currentVersion, blockedVersion) {
+      console.warn(
+        `IndexedDB open blocked by an older connection (v${currentVersion} blocking v${blockedVersion})`,
+      );
+    },
+    blocking() {
+      // Another tab is upgrading to a newer version; this connection would
+      // otherwise block it indefinitely. Yield it: close and drop the cache
+      // so this tab's next getDb() reopens fresh, at the new version.
+      void closeDb();
+    },
+    terminated() {
+      console.warn('IndexedDB connection was abnormally terminated');
+      dbPromise = undefined;
+    },
   }).catch((error: unknown) => {
     // A failed open must not be cached: the next call retries instead of
     // replaying the rejection until reload.

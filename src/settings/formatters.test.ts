@@ -93,6 +93,14 @@ describe('formatNumber', () => {
     expect(formatNumber(Number.NaN, 'period-decimal')).toBe('NaN');
     expect(formatNumber(Number.POSITIVE_INFINITY, 'period-decimal')).toBe('Infinity');
   });
+
+  it('rejects a fractional fractionDigits', () => {
+    expect(() => formatNumber(1234.5, 'period-decimal', 2.5)).toThrow(RangeError);
+  });
+
+  it('rejects a negative fractionDigits', () => {
+    expect(() => formatNumber(1234.5, 'period-decimal', -1)).toThrow(RangeError);
+  });
 });
 
 describe('formatDate', () => {

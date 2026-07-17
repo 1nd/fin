@@ -7,11 +7,17 @@ import styles from './SettingsPage.module.css';
 
 export function SettingsPage() {
   const { t } = useTranslation();
-  const { preferences, setPreference } = usePreferences();
+  const { preferences, persistenceError, setPreference } = usePreferences();
 
   return (
     <section className={styles.settings}>
       <h1>{t('settings.title')}</h1>
+
+      {persistenceError && (
+        <p role="alert" className={styles.saveError}>
+          {t('settings.saveError')}
+        </p>
+      )}
 
       <label className={styles.field}>
         <span>{t('settings.languageLabel')}</span>
