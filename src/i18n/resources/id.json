@@ -11,6 +11,11 @@
     "title": "Selamat datang di Fin",
     "body": "Semua keuangan Anda, di satu tempat."
   },
+  "notFound": {
+    "title": "Halaman tidak ditemukan",
+    "body": "Halaman yang Anda minta tidak ada.",
+    "homeLink": "Ke Beranda"
+  },
   "settings": {
     "title": "Pengaturan",
     "languageLabel": "Bahasa",

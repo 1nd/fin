@@ -43,7 +43,7 @@ React Router v7 in **declarative mode** (`BrowserRouter` + `Routes`/`Route` + `L
 
 ### D2 — Central route table as the single path source
 
-One module (layer 4) declares `{ path, view }` for `/` (Home) and `/settings` (Settings) and exposes path constants/helpers. Components never hardcode path strings; `AppShell` links and `Routes` both read the table. This is what keeps "every link goes through the router" checkable and makes the hash-mode fallback a one-file change.
+One import-free module (layer 4) exposes path constants for `/` (Home) and `/settings` (Settings) plus the catch-all pattern, as the single source of path strings. View binding deliberately stays out of the table, in `App.tsx`'s `Routes`: components that build links (shell nav, the not-found view's Home link) import the table, so a table that also imported view components would create an import cycle for any view that links anywhere. Components never hardcode path strings; `AppShell` links and `Routes` both read the table. This is what keeps "every link goes through the router" checkable and makes the hash-mode fallback safe: the provider swap happens at the composition root, and no path strings need rewriting anywhere.
 
 ### D3 — Router provider at the composition root; `useShellNavigation` retired
 

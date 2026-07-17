@@ -45,6 +45,15 @@ npm run dev       # start the dev server
 | `npm run format`       | Format with Prettier               |
 | `npm run format:check` | Check formatting                   |
 
+## Hosting
+
+App views are addressable at clean, history-API paths (e.g. `/settings`), not
+hash fragments. While Phase 1's build output happens to be a static SPA, a
+static host must serve the app for unknown paths ("SPA fallback") so that
+direct visits and refreshes on these paths work; hash-based routing remains
+available as a config-level fallback if a host cannot provide this. This note
+lapses for a server-backed Fin, which would serve these routes itself.
+
 ## Architecture
 
 Fin follows Clean Code Architecture: a pure TypeScript domain core with

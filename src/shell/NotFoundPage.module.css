@@ -1,0 +1,16 @@
+.notFound {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-width: 640px;
+}
+
+.notFound h1 {
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.notFound p {
+  color: var(--color-text-secondary);
+  margin: 0;
+}

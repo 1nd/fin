@@ -1,16 +1,15 @@
 // CCA: 4
 import type { ReactNode } from 'react';
+import { NavLink } from 'react-router';
 import { useTranslation } from '../i18n/useTranslation';
-import type { ShellView } from './useShellNavigation';
+import { routePaths } from './routes';
 import styles from './AppShell.module.css';
 
 interface AppShellProps {
-  activeView: ShellView;
-  onNavigate: (view: ShellView) => void;
   children: ReactNode;
 }
 
-export function AppShell({ activeView, onNavigate, children }: AppShellProps) {
+export function AppShell({ children }: AppShellProps) {
   const { t } = useTranslation();
 
   return (
@@ -18,22 +17,19 @@ export function AppShell({ activeView, onNavigate, children }: AppShellProps) {
       <header className={styles.header}>
         <span className={styles.brand}>{t('shell.brand')}</span>
         <nav className={styles.nav} aria-label={t('shell.navLabel')}>
-          <button
-            type="button"
-            className={activeView === 'home' ? styles.navItemActive : styles.navItem}
-            aria-current={activeView === 'home' ? 'page' : undefined}
-            onClick={() => onNavigate('home')}
+          <NavLink
+            to={routePaths.home}
+            end
+            className={({ isActive }) => (isActive ? styles.navItemActive : styles.navItem)}
           >
             {t('shell.nav.home')}
-          </button>
-          <button
-            type="button"
-            className={activeView === 'settings' ? styles.navItemActive : styles.navItem}
-            aria-current={activeView === 'settings' ? 'page' : undefined}
-            onClick={() => onNavigate('settings')}
+          </NavLink>
+          <NavLink
+            to={routePaths.settings}
+            className={({ isActive }) => (isActive ? styles.navItemActive : styles.navItem)}
           >
             {t('shell.nav.settings')}
-          </button>
+          </NavLink>
         </nav>
       </header>
       <main className={styles.main}>{children}</main>

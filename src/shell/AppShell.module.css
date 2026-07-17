@@ -28,12 +28,11 @@
 
 .navItem,
 .navItemActive {
-  appearance: none;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   padding: var(--space-xs) var(--space-md);
   font: inherit;
-  cursor: pointer;
+  text-decoration: none;
   background: transparent;
   color: var(--color-text-secondary);
 }
