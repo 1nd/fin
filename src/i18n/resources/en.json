@@ -11,6 +11,11 @@
     "title": "Welcome to Fin",
     "body": "Your finances, all in one place."
   },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you requested doesn't exist.",
+    "homeLink": "Go to Home"
+  },
   "settings": {
     "title": "Settings",
     "languageLabel": "Language",
