@@ -3,9 +3,20 @@
 
 import type { UserIdentity } from './userIdentity';
 
-// `container` hosts the provider's sign-in affordance (e.g. the rendered
-// "Sign In With Google" button); the port stays token-neutral (`google-signin` D2) — it
-// always resolves a decoded UserIdentity, never a provider-shaped credential.
+// The outcome of a single sign-in attempt, delivered through `onIdentity`; the port stays
+// token-neutral (`google-signin` D2) — always a decoded UserIdentity, never a
+// provider-shaped credential.
+export type IdentitySignInResult =
+  | { readonly ok: true; readonly identity: UserIdentity }
+  | { readonly ok: false; readonly error: unknown };
+
+// `container` hosts the provider's sign-in affordance (e.g. the rendered "Sign In With
+// Google" button). `renderInto` mounts it once, but the affordance itself then drives an
+// unbounded number of attempts — every click — so attempt outcomes arrive one at a time
+// through `onIdentity` rather than as `renderInto`'s resolution: a single Promise can only
+// ever settle once, and collapsing every attempt onto it silently drops all but the first
+// (retry-after-failure regression found in review).
 export interface IdentityProvider {
-  signIn(container: HTMLElement): Promise<UserIdentity>;
+  renderInto(container: HTMLElement): Promise<void>;
+  onIdentity(listener: (result: IdentitySignInResult) => void): () => void;
 }

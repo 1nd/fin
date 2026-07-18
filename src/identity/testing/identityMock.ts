@@ -1,5 +1,5 @@
 import { IdentityUseCase } from '../identityUseCase';
-import type { IdentityProvider } from '../identityProviderPorts';
+import type { IdentityProvider, IdentitySignInResult } from '../identityProviderPorts';
 import type { SessionStore } from '../session/sessionStorePorts';
 import type { UserIdentity } from '../userIdentity';
 
@@ -23,23 +23,37 @@ export class InMemorySessionStore implements SessionStore {
   }
 }
 
-// Never resolves: freezes a rendered gate at the signed-out state.
+// Never resolves and never delivers an identity: freezes a rendered gate at the
+// signed-out state.
 export class PendingIdentityProvider implements IdentityProvider {
-  signIn(): Promise<UserIdentity> {
+  renderInto(): Promise<void> {
     return new Promise(() => {});
+  }
+
+  onIdentity(): () => void {
+    return () => {};
   }
 }
 
-// Resolves immediately with a fixed identity: simulates a completed sign-in.
+// Delivers a fixed identity as soon as the affordance is "rendered": simulates a
+// completed sign-in.
 export class FixedIdentityProvider implements IdentityProvider {
   private readonly identity: UserIdentity;
+  private listener: ((result: IdentitySignInResult) => void) | undefined;
 
   constructor(identity: UserIdentity) {
     this.identity = identity;
   }
 
-  async signIn(): Promise<UserIdentity> {
-    return this.identity;
+  async renderInto(): Promise<void> {
+    this.listener?.({ ok: true, identity: this.identity });
+  }
+
+  onIdentity(listener: (result: IdentitySignInResult) => void): () => void {
+    this.listener = listener;
+    return () => {
+      this.listener = undefined;
+    };
   }
 }
 

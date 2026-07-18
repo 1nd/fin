@@ -5,6 +5,7 @@ import { LandingPage } from '../shell/LandingPage';
 import { NotFoundPage } from '../shell/NotFoundPage';
 import { routePaths, routePatterns } from '../shell/routes';
 import { IdentityContextProvider, useIdentity } from '../identity/IdentityContext';
+import type { IdentityUseCase } from '../identity/identityUseCase';
 import { SignInPage } from '../identity/SignInPage';
 import { PreferencesProvider } from '../settings/PreferencesContext';
 import { SettingsPage } from '../settings/SettingsPage';
@@ -15,26 +16,37 @@ import { SettingsPage } from '../settings/SettingsPage';
 export function Gate() {
   const { identity } = useIdentity();
 
-  if (!identity) {
-    return <SignInPage />;
-  }
-
+  // PreferencesProvider wraps both branches (`google-signin` D5): it's the only thing that
+  // ever calls `i18next.changeLanguage`/sets the theme, including its `userId: null`
+  // browser-cascade path that localizes the signed-out sign-in screen.
   return (
     <PreferencesProvider>
-      <AppShell>
-        <Routes>
-          <Route path={routePaths.home} element={<LandingPage />} />
-          <Route path={routePaths.settings} element={<SettingsPage />} />
-          <Route path={routePatterns.catchAll} element={<NotFoundPage />} />
-        </Routes>
-      </AppShell>
+      {identity ? (
+        <AppShell>
+          <Routes>
+            <Route path={routePaths.home} element={<LandingPage />} />
+            <Route path={routePaths.settings} element={<SettingsPage />} />
+            <Route path={routePatterns.catchAll} element={<NotFoundPage />} />
+          </Routes>
+        </AppShell>
+      ) : (
+        <SignInPage />
+      )}
     </PreferencesProvider>
   );
 }
 
-function App() {
+interface AppProps {
+  // Test-only seam, mirrors IdentityContextProvider's own (`google-signin` D2): lets
+  // routing tests inject a mock identity use case directly instead of seeding the real
+  // LocalStorageSessionStore's key, which would couple them to the session serialization
+  // format.
+  useCase?: IdentityUseCase;
+}
+
+function App({ useCase }: AppProps) {
   return (
-    <IdentityContextProvider>
+    <IdentityContextProvider useCase={useCase}>
       <Gate />
     </IdentityContextProvider>
   );

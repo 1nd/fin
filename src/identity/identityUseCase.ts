@@ -1,5 +1,5 @@
 // CCA: 2
-import type { IdentityProvider } from './identityProviderPorts';
+import type { IdentityProvider, IdentitySignInResult } from './identityProviderPorts';
 import type { SessionStore } from './session/sessionStorePorts';
 import type { UserIdentity } from './userIdentity';
 
@@ -16,10 +16,17 @@ export class IdentityUseCase {
     return this.sessionStore.restore();
   }
 
-  async signIn(container: HTMLElement): Promise<UserIdentity> {
-    const identity = await this.provider.signIn(container);
-    this.sessionStore.persist(identity);
-    return identity;
+  renderInto(container: HTMLElement): Promise<void> {
+    return this.provider.renderInto(container);
+  }
+
+  // Every attempt the rendered affordance delivers (one per click, unbounded) flows through
+  // here; a successful one is persisted before the caller is notified.
+  onIdentity(listener: (result: IdentitySignInResult) => void): () => void {
+    return this.provider.onIdentity((result) => {
+      if (result.ok) this.sessionStore.persist(result.identity);
+      listener(result);
+    });
   }
 
   signOut(): void {

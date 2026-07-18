@@ -1,12 +1,35 @@
 import { describe, expect, it } from 'vitest';
-import type { IdentityProvider } from './identityProviderPorts';
+import type { IdentityProvider, IdentitySignInResult } from './identityProviderPorts';
 import { IdentityUseCase } from './identityUseCase';
 import { FixedIdentityProvider, InMemorySessionStore } from './testing/identityMock';
 import { userIdFromGoogleSubject, type UserIdentity } from './userIdentity';
 
 class FailingIdentityProvider implements IdentityProvider {
-  async signIn(): Promise<UserIdentity> {
+  async renderInto(): Promise<void> {
     throw new Error('sign-in failed');
+  }
+
+  onIdentity(): () => void {
+    return () => {};
+  }
+}
+
+// Delivers each queued result to the listener on demand — simulates the rendered
+// affordance driving several attempts (e.g. clicks) from a single subscription.
+class ScriptedIdentityProvider implements IdentityProvider {
+  private listener: ((result: IdentitySignInResult) => void) | undefined;
+
+  async renderInto(): Promise<void> {}
+
+  onIdentity(listener: (result: IdentitySignInResult) => void): () => void {
+    this.listener = listener;
+    return () => {
+      this.listener = undefined;
+    };
+  }
+
+  deliver(result: IdentitySignInResult): void {
+    this.listener?.(result);
   }
 }
 
@@ -40,18 +63,22 @@ describe('IdentityUseCase', () => {
   it('signs in through the provider and persists the resulting identity', async () => {
     const sessionStore = new InMemorySessionStore();
     const useCase = new IdentityUseCase(new FixedIdentityProvider(ALICE), sessionStore);
+    const results: IdentitySignInResult[] = [];
+    useCase.onIdentity((result) => results.push(result));
 
-    const identity = await useCase.signIn(document.createElement('div'));
+    await useCase.renderInto(document.createElement('div'));
 
-    expect(identity).toEqual(ALICE);
+    expect(results).toEqual([{ ok: true, identity: ALICE }]);
     expect(sessionStore.restore()).toEqual(ALICE);
   });
 
-  it('propagates a sign-in failure without persisting anything', async () => {
+  it('propagates a render failure without persisting anything', async () => {
     const sessionStore = new InMemorySessionStore();
     const useCase = new IdentityUseCase(new FailingIdentityProvider(), sessionStore);
 
-    await expect(useCase.signIn(document.createElement('div'))).rejects.toThrow('sign-in failed');
+    await expect(useCase.renderInto(document.createElement('div'))).rejects.toThrow(
+      'sign-in failed',
+    );
     expect(sessionStore.restore()).toBeNull();
   });
 
@@ -62,5 +89,23 @@ describe('IdentityUseCase', () => {
     useCase.signOut();
 
     expect(useCase.restore()).toBeNull();
+  });
+
+  it('delivers every attempt from one subscription — a failed attempt does not silently swallow a later successful one', async () => {
+    const sessionStore = new InMemorySessionStore();
+    const provider = new ScriptedIdentityProvider();
+    const useCase = new IdentityUseCase(provider, sessionStore);
+    const results: IdentitySignInResult[] = [];
+    useCase.onIdentity((result) => results.push(result));
+    await useCase.renderInto(document.createElement('div'));
+
+    provider.deliver({ ok: false, error: new Error('bad token') });
+    provider.deliver({ ok: true, identity: ALICE });
+
+    expect(results).toEqual([
+      { ok: false, error: new Error('bad token') },
+      { ok: true, identity: ALICE },
+    ]);
+    expect(sessionStore.restore()).toEqual(ALICE);
   });
 });

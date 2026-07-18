@@ -37,10 +37,20 @@ The system SHALL authenticate the user through Google Sign-In entirely in the br
 - **WHEN** the user completes Google Sign-In
 - **THEN** the app resolves a stable `userId` from the Google account and renders the app as that user
 
-#### Scenario: Cancelled or failed sign-in keeps the user on the gate
+#### Scenario: Failed sign-in keeps the user on the gate with a notice
 
-- **WHEN** the user dismisses the Google Sign-In prompt or it fails
+- **WHEN** Google Sign-In fails — the returned token is rejected (audience, issuer, expiry, or subject), or the sign-in script or configuration fails to load
 - **THEN** no identity is established, the sign-in screen remains with a localized notice, and no app view renders
+
+#### Scenario: A failed sign-in offers a way to retry without a reload
+
+- **WHEN** Google Sign-In fails before the sign-in affordance itself ever rendered (e.g. the sign-in script failed to load) — a rejected token is excluded here, since it leaves the real affordance rendered and already clickable again
+- **THEN** the sign-in screen offers a retry control, since there is otherwise nothing on screen for the user to act on
+
+#### Scenario: A dismissed sign-in prompt leaves the gate unchanged
+
+- **WHEN** the user closes the Google account chooser without completing sign-in
+- **THEN** no identity is established and the sign-in screen remains exactly as it was — Google Identity Services gives the app no signal for a bare dismissal, so no notice is shown, and the sign-in affordance remains usable for another attempt
 
 ### Requirement: Signed-in account presented with sign-out
 

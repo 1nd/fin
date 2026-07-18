@@ -9,7 +9,6 @@ export interface GoogleIdConfiguration {
   client_id: string;
   auto_select?: boolean;
   callback: (response: GoogleIdCredentialResponse) => void;
-  error_callback?: (error: { type: string; message?: string }) => void;
 }
 
 export interface GoogleAccountsId {

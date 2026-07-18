@@ -6,7 +6,10 @@ import type { ReactNode } from 'react';
 import i18next from '../i18n/i18n';
 import { IdentityContextProvider, useIdentity } from '../identity/IdentityContext';
 import { IdentityUseCase } from '../identity/identityUseCase';
-import type { IdentityProvider as IdentityProviderPort } from '../identity/identityProviderPorts';
+import type {
+  IdentityProvider as IdentityProviderPort,
+  IdentitySignInResult,
+} from '../identity/identityProviderPorts';
 import { identityUseCaseFor, InMemorySessionStore } from '../identity/testing/identityMock';
 import type { UserIdentity } from '../identity/userIdentity';
 import { closeDb } from '../storage/db';
@@ -25,19 +28,27 @@ function withIdentity(identity: UserIdentity | null, children: ReactNode) {
   );
 }
 
-// Resolves each successive signIn() call with the next queued identity —
+// Delivers the next queued identity each time the affordance is "rendered" —
 // simulates a user signing out and back in as a different Google account.
 class QueuedIdentityProvider implements IdentityProviderPort {
   private readonly queue: UserIdentity[];
+  private listener: ((result: IdentitySignInResult) => void) | undefined;
 
   constructor(identities: UserIdentity[]) {
     this.queue = [...identities];
   }
 
-  async signIn(): Promise<UserIdentity> {
+  async renderInto(): Promise<void> {
     const next = this.queue.shift();
     if (!next) throw new Error('no more identities queued');
-    return next;
+    this.listener?.({ ok: true, identity: next });
+  }
+
+  onIdentity(listener: (result: IdentitySignInResult) => void): () => void {
+    this.listener = listener;
+    return () => {
+      this.listener = undefined;
+    };
   }
 }
 

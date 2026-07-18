@@ -7,8 +7,8 @@
 ## 2. Identity core (CCA layers 1–2)
 
 - [x] 2.1 Add the `UserIdentity` entity (layer 1): `userId`, `displayName`, `email`, `pictureUrl?`, `locale?`, plus the pure rule deriving `userId` from the Google subject (`sub`)
-- [x] 2.2 Define the `IdentityProvider` and `SessionStore` ports (layer 2): `signIn()`, `restore()`/persist/clear
-- [x] 2.3 Implement `IdentityUseCase` (layer 2): `restore()`, `signIn()`, `signOut()`, exposing the current identity, orchestrating the two ports; unit-tested against a mock `IdentityProvider`
+- [x] 2.2 Define the `IdentityProvider` and `SessionStore` ports (layer 2): `renderInto()`/`onIdentity()` (subscription, not a one-shot promise — a rendered affordance can drive unbounded attempts), `restore()`/persist/clear
+- [x] 2.3 Implement `IdentityUseCase` (layer 2): `restore()`, `renderInto()`, `onIdentity()`, `signOut()`, exposing the current identity, orchestrating the two ports; unit-tested against a mock `IdentityProvider`
 
 ## 3. Adapters (CCA layer 4)
 
@@ -19,13 +19,13 @@
 ## 4. Identity context & the gate
 
 - [x] 4.1 Add the React `IdentityContextProvider` context + `useIdentity()` hook (layer 4), restoring the session at startup and exposing identity + `signIn`/`signOut`
-- [x] 4.2 Wrap the app at the composition root (`src/app/App.tsx` / `main.tsx`) with the identity context and the **gate**: no identity → render the sign-in screen (URL untouched, no redirect); identity present → render `PreferencesProvider` → `AppShell` → `Routes`
+- [x] 4.2 Wrap the app at the composition root (`src/app/App.tsx` / `main.tsx`) with the identity context and the **gate**: no identity → render `PreferencesProvider` (its `userId: null` browser-cascade path, D5) → the sign-in screen (URL untouched, no redirect); identity present → render `PreferencesProvider` → `AppShell` → `Routes`. Both branches need `PreferencesProvider` — it's the only thing that ever calls `i18next.changeLanguage`/sets the theme, so a bare sign-in screen outside it never gets localized
 
 ## 5. Sign-in screen & account control (UI + i18n)
 
-- [x] 5.1 Build the standalone sign-in screen (token-themed, responsive, *outside* `AppShell`) hosting the Google button; localized notice for sign-in failure/cancellation and for missing config
+- [x] 5.1 Build the standalone sign-in screen (token-themed, responsive, *outside* `AppShell`) hosting the Google button; localized notice for sign-in failure/cancellation and for missing config; when the affordance itself never rendered (e.g. script-load failure), show a localized retry control — a rejected token instead leaves the real button rendered and already retryable, so it gets no separate control
 - [x] 5.2 Add the account control to `AppShell`: show the signed-in account (name/email) and a sign-out button (explicit gesture, not an action URL)
-- [x] 5.3 Add en/id catalog strings for the sign-in screen, config/error notices, account label, and sign-out (`src/i18n/resources/en.json`, `id.json`); no hardcoded user-facing text
+- [x] 5.3 Add en/id catalog strings for the sign-in screen, config/error notices, the retry control, account label, and sign-out (`src/i18n/resources/en.json`, `id.json`); no hardcoded user-facing text
 - [x] 5.4 Add a short localized privacy note on the sign-in screen (what is read from Google, that it stays on-device) per D9; its strings go in the en/id catalogs (5.3)
 
 ## 6. Settings integration (re-key + account locale)
@@ -40,11 +40,20 @@
 ## 8. Tests
 
 - [x] 8.1 Unit-test `IdentityUseCase` (restore/sign-in/sign-out) and the `UserIdentity` userId derivation against the mock provider and an in-memory session store
-- [x] 8.2 Component-test the gate: signed-out renders the sign-in screen with the URL intact; completing sign-in (mock provider) lands on the originally requested view (e.g. direct `/settings`); sign-out returns to the gate
+- [x] 8.2 Component-test the gate: signed-out renders the sign-in screen with the URL intact; **signed-out with an Indonesian browser locale renders the sign-in screen entirely from the Indonesian catalog** (exercises `PreferencesProvider`'s `userId: null` browser-cascade path — the spec's "Sign-in screen is localized" scenario); completing sign-in (mock provider) lands on the originally requested view (e.g. direct `/settings`); sign-out returns to the gate. Component-test `SignInPage` directly (`SignInPage.test.tsx`): a render failure (button never reached the DOM) shows a retry control and retrying succeeds; a rejected token *after* the button already rendered shows no separate retry control, since the real button is already clickable again
 - [x] 8.3 Test settings re-keying: preferences load/persist under the signed-in `userId`; account locale supplies defaults ahead of browser locale; switching to a second account does not see the first account's override
 - [x] 8.4 Run `npm run test` and `npm run typecheck`; all green
 
 ## 9. Documentation & verification
 
 - [x] 9.1 README: document `VITE_GOOGLE_CLIENT_ID` setup, the JavaScript-origins whitelist (no redirect URIs, no server), and the `accounts.google.com` CSP/hosting allowance
-- [x] 9.2 Manual verification in a real browser (per AGENTS.md): sign in with Google (popup, no redirect); reload keeps the session; sign out returns to the gate; sign in as a second Google account and confirm separate preferences; a direct visit to `/settings` while signed out lands on Settings after sign-in; sign-in screen renders localized in en and id at phone/tablet/desktop widths
+- [ ] 9.2 Manual verification in a real browser (per AGENTS.md). Scenarios:
+  - Sign in with Google (popup, no redirect).
+  - Dismissing the popup doesn't break the button: click the button, then close the popup without picking an account. GIS exposes no signal for this on the API this adapter uses (`google.accounts.id` has no `error_callback` — that field only exists on the unrelated OAuth2 token client), so expect no visible change, not a notice. Then click the button again on the same still-open screen and complete sign-in successfully, confirming the button still works after a dismissed attempt.
+  - Retry-after-failure (bug #1: a rejected `aud`/`iss`/`exp`/`sub` token followed by a valid one through the same button registration) is **not manually reproducible** — a genuine Google-issued token always passes those checks, so a real browser session can't manufacture the failing-then-succeeding pair. This regression is covered by automated tests instead: `identityUseCase.test.ts` and `googleIdentityProvider.test.ts`.
+  - Reload keeps the session.
+  - Sign out returns to the gate.
+  - Sign in as a second Google account and confirm separate preferences.
+  - Non-ASCII name isn't mangled: sign in with a Google account whose display name contains non-ASCII characters (e.g. accented letters or a CJK/Hangul name) and confirm it renders correctly in the account label, not mangled.
+  - A direct visit to `/settings` while signed out lands on Settings after sign-in
+  - Sign-in screen renders localized in en and id at phone/tablet/desktop widths
