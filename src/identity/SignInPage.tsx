@@ -13,8 +13,8 @@ export function SignInPage() {
   useEffect(() => {
     // Render the Google button once per mount, guarded by a ref rather than by
     // signIn's referential stability — memoization is a perf hint, not a
-    // guarantee. The button itself drives every subsequent attempt (D1's
-    // account chooser).
+    // guarantee. The button itself drives every subsequent attempt
+    // (account chooser of `google-signin` D1).
     if (startedRef.current) return;
     const container = buttonContainerRef.current;
     if (container) {

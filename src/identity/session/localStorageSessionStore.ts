@@ -3,7 +3,7 @@ import type { SessionStore } from './sessionStorePorts';
 import type { UserIdentity } from '../userIdentity';
 
 // A single well-known key, not the per-user IndexedDB stores: the session is
-// the pointer to who the user is, needed before any userId exists (D4).
+// the pointer to who the user is, needed before any userId exists (`google-signin` D4).
 export const SESSION_STORAGE_KEY = 'fin.identity.session';
 
 export class LocalStorageSessionStore implements SessionStore {

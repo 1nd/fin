@@ -39,7 +39,7 @@ export function formatNumber(
 // A value with sub-cent precision keeps four fraction digits rather than
 // silently losing them; plain amounts show two. Four is Fin's own display
 // requirement, informed by (not coupled to) real-world quoting practice such
-// as Indonesian fund unit prices like 988.3204 — see design.md D4. Rounding
+// as Indonesian fund unit prices like 988.3204 — see `app-foundation` D4. Rounding
 // at four before trimming keeps float arithmetic noise (0.1 + 0.2) at "0.30".
 function roundAdaptive(abs: number): string {
   const rounded = roundHalfUp(abs, 4);

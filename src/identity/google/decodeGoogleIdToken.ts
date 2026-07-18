@@ -15,7 +15,7 @@ interface GoogleIdTokenPayload {
   locale?: string;
 }
 
-// Decodes and checks `aud`/`iss`/`exp` as defense-in-depth (D9) — the token
+// Decodes and checks `aud`/`iss`/`exp` as defense-in-depth (`google-signin` D9) — the token
 // itself was already obtained directly from Google over HTTPS by Google Identity Services, so
 // signature verification against Google's JWKS is left to a future
 // server-side boundary (Phase X), not duplicated here.

@@ -25,7 +25,7 @@ export class GoogleIdentityProvider implements IdentityProvider {
     return new Promise<UserIdentity>((resolve, reject) => {
       google.accounts.id.initialize({
         client_id: clientId,
-        // Forward-compatible insurance (D1): suppresses Google Identity Services' silent
+        // Forward-compatible insurance (`google-signin` D1): suppresses Google Identity Services' silent
         // auto-return of a single previously-approved account. The button's
         // account chooser is unaffected either way.
         auto_select: false,

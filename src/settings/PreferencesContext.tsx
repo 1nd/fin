@@ -27,7 +27,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   const userId = identity?.userId ?? null;
 
   // Keying on userId remounts the inner provider on sign-in/switch/sign-out
-  // (D6), so its preferences/failedKeys/overriddenKeys state starts clean for
+  // (`google-signin` D6), so its preferences/failedKeys/overriddenKeys state starts clean for
   // the new partition instead of needing to be reset by hand.
   return (
     <PreferencesProviderForUser
@@ -51,7 +51,7 @@ function PreferencesProviderForUser({
 }) {
   // With no signed-in userId, there is nothing to key per-user storage by;
   // resolve the browser cascade and skip persistence (Settings is
-  // unreachable while gated anyway, per D5).
+  // unreachable while gated anyway, per `google-signin` D5).
   const useCase = useMemo(
     () => (userId ? new SettingsUseCase(new IndexedDbSettingsRepository(), userId) : null),
     [userId],

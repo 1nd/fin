@@ -21,7 +21,7 @@ const IdentityContext = createContext<IdentityContextValue | undefined>(undefine
 interface IdentityProviderProps {
   children: ReactNode;
   // Test-only seam: production always uses the real Google Identity Services provider + localStorage
-  // session store; tests inject a mock IdentityUseCase (D2).
+  // session store; tests inject a mock IdentityUseCase (`google-signin` D2).
   useCase?: IdentityUseCase;
 }
 

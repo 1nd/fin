@@ -9,7 +9,7 @@ import { SignInPage } from '../identity/SignInPage';
 import { PreferencesProvider } from '../settings/PreferencesContext';
 import { SettingsPage } from '../settings/SettingsPage';
 
-// The gate (D5): a conditional render, never a redirect, so the requested
+// The gate (`google-signin` D5): a conditional render, never a redirect, so the requested
 // URL is preserved untouched and React Router renders it once identity
 // flips to present. Exported for the gate's own tests (mock identity use case).
 export function Gate() {
