@@ -189,8 +189,6 @@ monthly copies, ever.
 - Clean Code Architecture layers per `AGENTS.md` (`// CCA: <n>` tags,
   dependency rule). Pure TS domain core (layers 1–2); storage, rate sources,
   identity, and backup destinations are swappable adapters (layers 3–4).
-- Recurring pattern: **two adapters, one entity** (manual rate entry vs rate
-  API; file export vs Drive backup; local user vs Google identity).
 
 ### Engineering practices
 
