@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import i18next from '../i18n/i18n';
-import { LOCAL_PLACEHOLDER_USER_ID } from '../storage/constants';
+import { useIdentity } from '../identity/IdentityContext';
 import { IndexedDbSettingsRepository } from './indexeddb/indexedDbSettingsRepository';
 import type { PreferenceKey, Preferences } from './preferences';
 import { resolvePreferences } from './resolvePreferences';
@@ -23,12 +23,41 @@ function browserLocale(): string | null {
 }
 
 export function PreferencesProvider({ children }: { children: ReactNode }) {
+  const { identity } = useIdentity();
+  const userId = identity?.userId ?? null;
+
+  // Keying on userId remounts the inner provider on sign-in/switch/sign-out
+  // (D6), so its preferences/failedKeys/overriddenKeys state starts clean for
+  // the new partition instead of needing to be reset by hand.
+  return (
+    <PreferencesProviderForUser
+      key={userId ?? 'signed-out'}
+      userId={userId}
+      accountLocale={identity?.locale ?? null}
+    >
+      {children}
+    </PreferencesProviderForUser>
+  );
+}
+
+function PreferencesProviderForUser({
+  userId,
+  accountLocale,
+  children,
+}: {
+  userId: string | null;
+  accountLocale: string | null;
+  children: ReactNode;
+}) {
+  // With no signed-in userId, there is nothing to key per-user storage by;
+  // resolve the browser cascade and skip persistence (Settings is
+  // unreachable while gated anyway, per D5).
   const useCase = useMemo(
-    () => new SettingsUseCase(new IndexedDbSettingsRepository(), LOCAL_PLACEHOLDER_USER_ID),
-    [],
+    () => (userId ? new SettingsUseCase(new IndexedDbSettingsRepository(), userId) : null),
+    [userId],
   );
   const [preferences, setPreferences] = useState<Preferences>(() =>
-    resolvePreferences(null, browserLocale(), {}),
+    resolvePreferences(accountLocale, browserLocale(), {}),
   );
   const [failedKeys, setFailedKeys] = useState<ReadonlySet<PreferenceKey>>(new Set());
 
@@ -37,9 +66,13 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   const overriddenKeys = useRef(new Set<PreferenceKey>());
 
   useEffect(() => {
+    // With no useCase (signed out), the useState initializer above already
+    // resolved the correct browser-cascade snapshot; nothing to load.
+    if (!useCase) return;
+
     let cancelled = false;
     useCase
-      .getEffectivePreferences(null, browserLocale())
+      .getEffectivePreferences(accountLocale, browserLocale())
       .then((effective) => {
         if (cancelled) return;
         setPreferences((prev) => {
@@ -56,7 +89,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [useCase]);
+  }, [useCase, accountLocale]);
 
   useEffect(() => {
     void i18next.changeLanguage(preferences.language);
@@ -70,6 +103,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
       setPreference: (key, value) => {
         overriddenKeys.current.add(key);
         setPreferences((prev) => ({ ...prev, [key]: value }));
+        if (!useCase) return;
         useCase.setOverride(key, value).then(
           () => {
             setFailedKeys((prev) => {

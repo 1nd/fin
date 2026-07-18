@@ -32,6 +32,30 @@ npm install
 npm run dev       # start the dev server
 ```
 
+Signing in requires a Google OAuth client id — see "Google Sign-In setup" below.
+
+## Google Sign-In setup
+
+The app requires a Google identity before rendering any view (see
+[openspec/changes/google-signin](openspec/changes/google-signin)). Authentication runs
+entirely in the browser via Google Identity Services (GIS) — an ID-token popup flow with
+no redirect URIs, no client secret, and no server.
+
+1. In [Google Cloud Console](https://console.cloud.google.com/apis/credentials), create an
+   OAuth **client id** of type **Web application**.
+2. Add this app's **Authorized JavaScript origins** (e.g. `http://localhost:5173` for the
+   Vite dev server). Leave **Authorized redirect URIs** empty — none are used.
+3. Copy [.env.example](.env.example) to `.env` and set `VITE_GOOGLE_CLIENT_ID` to the
+   client id from step 1. `.env` is gitignored; never commit a real client id.
+4. Restart `npm run dev` so Vite picks up the new env var.
+
+Without `VITE_GOOGLE_CLIENT_ID` set, the sign-in screen shows a localized configuration
+notice instead of crashing.
+
+The GIS client script loads from `https://accounts.google.com/gsi/client`. A host with a
+Content-Security-Policy must allow this origin in `script-src`, `connect-src`, and
+`frame-src` for sign-in to work.
+
 ## Scripts
 
 | Command                | What it does                       |

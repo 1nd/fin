@@ -1,7 +1,7 @@
 // CCA: 2
 import { PREFERENCE_KEYS, type PreferenceKey, type Preferences } from './preferences';
 import { resolvePreferences, type PreferenceOverrides } from './resolvePreferences';
-import type { SettingsRepository } from './settingsRepository';
+import type { SettingsRepository } from './settingsRepositoryPorts';
 
 export class SettingsUseCase {
   private readonly repository: SettingsRepository;

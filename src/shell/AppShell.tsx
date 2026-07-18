@@ -1,6 +1,7 @@
 // CCA: 4
 import type { ReactNode } from 'react';
 import { NavLink } from 'react-router';
+import { useIdentity } from '../identity/IdentityContext';
 import { useTranslation } from '../i18n/useTranslation';
 import { routePaths } from './routes';
 import styles from './AppShell.module.css';
@@ -11,6 +12,7 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const { t } = useTranslation();
+  const { identity, signOut } = useIdentity();
 
   return (
     <div className={styles.shell}>
@@ -31,6 +33,12 @@ export function AppShell({ children }: AppShellProps) {
             {t('shell.nav.settings')}
           </NavLink>
         </nav>
+        <div className={styles.account}>
+          <span className={styles.accountLabel}>{identity?.displayName || identity?.email}</span>
+          <button type="button" className={styles.signOutButton} onClick={signOut}>
+            {t('shell.account.signOut')}
+          </button>
+        </div>
       </header>
       <main className={styles.main}>{children}</main>
     </div>

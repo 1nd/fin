@@ -4,18 +4,31 @@ import userEvent from '@testing-library/user-event';
 import { IDBFactory } from 'fake-indexeddb';
 import { BrowserRouter, MemoryRouter } from 'react-router';
 import i18next from '../i18n/i18n';
+import { SESSION_STORAGE_KEY } from '../identity/session/localStorageSessionStore';
+import type { UserIdentity } from '../identity/userIdentity';
 import { closeDb } from '../storage/db';
 import App from './App';
+
+// These tests exercise routing/i18n, not identity, so they run pre-signed-in:
+// seed the real LocalStorageSessionStore's key the same way a completed
+// Google Sign-In would have (identity concerns are covered by Gate.test.tsx).
+const TEST_USER: UserIdentity = {
+  userId: 'test-user',
+  displayName: 'Test User',
+  email: 'test-user@example.com',
+};
 
 describe('App', () => {
   beforeEach(async () => {
     await closeDb();
     (globalThis as { indexedDB: IDBFactory }).indexedDB = new IDBFactory();
+    window.localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(TEST_USER));
     await i18next.changeLanguage('en');
   });
 
   afterEach(() => {
     cleanup();
+    window.localStorage.removeItem(SESSION_STORAGE_KEY);
     // The history-traversal test drives real window.history; reset the URL so
     // tests that run after it don't inherit its final location.
     window.history.replaceState(null, '', '/');

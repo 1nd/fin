@@ -5,7 +5,17 @@
     "nav": {
       "home": "Beranda",
       "settings": "Pengaturan"
+    },
+    "account": {
+      "signOut": "Keluar"
     }
+  },
+  "signIn": {
+    "title": "Login ke Fin",
+    "body": "Login dengan akun Google Anda untuk melanjutkan.",
+    "privacyNote": "Fin membaca nama, email, dan foto profil Anda dari Google untuk mempersonalisasi aplikasi. Data ini tetap berada di perangkat ini dan tidak pernah dikirim ke server.",
+    "configError": "Google Sign-In belum dikonfigurasi untuk aplikasi ini.",
+    "signInError": "Proses login tidak selesai. Silakan coba lagi."
   },
   "landing": {
     "title": "Selamat datang di Fin",

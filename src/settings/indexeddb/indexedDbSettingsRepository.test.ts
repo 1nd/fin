@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { IDBFactory } from 'fake-indexeddb';
 import { closeDb, getDb } from '../../storage/db';
-import type { SettingsRecord } from '../settingsRepository';
+import type { SettingsRecord } from '../settingsRepositoryPorts';
 import { IndexedDbSettingsRepository } from './indexedDbSettingsRepository';
 
 describe('IndexedDbSettingsRepository', () => {

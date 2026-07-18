@@ -5,7 +5,17 @@
     "nav": {
       "home": "Home",
       "settings": "Settings"
+    },
+    "account": {
+      "signOut": "Sign out"
     }
+  },
+  "signIn": {
+    "title": "Sign in to Fin",
+    "body": "Sign in with your Google account to continue.",
+    "privacyNote": "Fin reads your name, email, and profile photo from Google to personalize the app. This stays on this device and is never sent to a server.",
+    "configError": "Google Sign-In isn't configured for this app yet.",
+    "signInError": "Sign-in didn't complete. Please try again."
   },
   "landing": {
     "title": "Welcome to Fin",

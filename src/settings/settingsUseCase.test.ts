@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { SettingsRecord, SettingsRepository } from './settingsRepository';
+import type { SettingsRecord, SettingsRepository } from './settingsRepositoryPorts';
 import { SettingsUseCase } from './settingsUseCase';
 
 class InMemorySettingsRepository implements SettingsRepository {
