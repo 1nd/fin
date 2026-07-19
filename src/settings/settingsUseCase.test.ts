@@ -30,7 +30,7 @@ class InMemorySettingsRepository implements SettingsRepository {
 describe('SettingsUseCase', () => {
   it('computes effective preferences from the cascade when there are no overrides', async () => {
     const useCase = new SettingsUseCase(new InMemorySettingsRepository(), 'user-1');
-    const prefs = await useCase.getEffectivePreferences(null, 'id-ID');
+    const prefs = await useCase.getEffectivePreferences('id-ID');
     expect(prefs.language).toBe('id');
   });
 
@@ -39,7 +39,7 @@ describe('SettingsUseCase', () => {
     const useCase = new SettingsUseCase(repository, 'user-1');
     await useCase.setOverride('language', 'en');
 
-    const prefs = await useCase.getEffectivePreferences(null, 'id-ID');
+    const prefs = await useCase.getEffectivePreferences('id-ID');
     expect(prefs.language).toBe('en');
     // Untouched preferences remain cascade-derived.
     expect(prefs.numberFormat).toBe('comma-decimal');
@@ -51,8 +51,8 @@ describe('SettingsUseCase', () => {
     const useCaseB = new SettingsUseCase(repository, 'user-b');
     await useCaseA.setOverride('language', 'id');
 
-    const prefsA = await useCaseA.getEffectivePreferences(null, null);
-    const prefsB = await useCaseB.getEffectivePreferences(null, null);
+    const prefsA = await useCaseA.getEffectivePreferences(null);
+    const prefsB = await useCaseB.getEffectivePreferences(null);
     expect(prefsA.language).toBe('id');
     expect(prefsB.language).toBe('en');
   });

@@ -7,7 +7,6 @@ const ALICE: UserIdentity = {
   displayName: 'Alice',
   email: 'alice@example.com',
   pictureUrl: 'https://example.com/alice.jpg',
-  locale: 'en',
 };
 
 describe('LocalStorageSessionStore', () => {

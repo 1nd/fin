@@ -30,11 +30,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   // (`google-signin` D6), so its preferences/failedKeys/overriddenKeys state starts clean for
   // the new partition instead of needing to be reset by hand.
   return (
-    <PreferencesProviderForUser
-      key={userId ?? 'signed-out'}
-      userId={userId}
-      accountLocale={identity?.locale ?? null}
-    >
+    <PreferencesProviderForUser key={userId ?? 'signed-out'} userId={userId}>
       {children}
     </PreferencesProviderForUser>
   );
@@ -42,11 +38,9 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 
 function PreferencesProviderForUser({
   userId,
-  accountLocale,
   children,
 }: {
   userId: string | null;
-  accountLocale: string | null;
   children: ReactNode;
 }) {
   // With no signed-in userId, there is nothing to key per-user storage by;
@@ -57,7 +51,7 @@ function PreferencesProviderForUser({
     [userId],
   );
   const [preferences, setPreferences] = useState<Preferences>(() =>
-    resolvePreferences(accountLocale, browserLocale(), {}),
+    resolvePreferences(browserLocale(), {}),
   );
   const [failedKeys, setFailedKeys] = useState<ReadonlySet<PreferenceKey>>(new Set());
 
@@ -72,7 +66,7 @@ function PreferencesProviderForUser({
 
     let cancelled = false;
     useCase
-      .getEffectivePreferences(accountLocale, browserLocale())
+      .getEffectivePreferences(browserLocale())
       .then((effective) => {
         if (cancelled) return;
         setPreferences((prev) => {
@@ -89,7 +83,7 @@ function PreferencesProviderForUser({
     return () => {
       cancelled = true;
     };
-  }, [useCase, accountLocale]);
+  }, [useCase]);
 
   useEffect(() => {
     void i18next.changeLanguage(preferences.language);

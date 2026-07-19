@@ -233,28 +233,6 @@ describe('PreferencesProvider', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
-  it('resolves defaults from the account locale ahead of browser locale', async () => {
-    const idAccount: UserIdentity = {
-      userId: 'user-id-locale',
-      displayName: 'Budi',
-      email: 'budi@example.com',
-      locale: 'id-ID',
-    };
-
-    render(
-      withIdentity(
-        idAccount,
-        <PreferencesProvider>
-          <Probe />
-        </PreferencesProvider>,
-      ),
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId('language')).toHaveTextContent('id');
-    });
-  });
-
   it("switching to a second account does not see the first account's override", async () => {
     await closeDb();
     (globalThis as { indexedDB: IDBFactory }).indexedDB = new IDBFactory();

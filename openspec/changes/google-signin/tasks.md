@@ -47,7 +47,7 @@
 ## 9. Documentation & verification
 
 - [x] 9.1 README: document `VITE_GOOGLE_CLIENT_ID` setup, the JavaScript-origins whitelist (no redirect URIs, no server), and the `accounts.google.com` CSP/hosting allowance
-- [ ] 9.2 Manual verification in a real browser (per AGENTS.md). Scenarios:
+- [x] 9.2 Manual verification in a real browser (per AGENTS.md). Scenarios:
   - Sign in with Google (popup, no redirect).
   - Dismissing the popup doesn't break the button: click the button, then close the popup without picking an account. GIS exposes no signal for this on the API this adapter uses (`google.accounts.id` has no `error_callback` — that field only exists on the unrelated OAuth2 token client), so expect no visible change, not a notice. Then click the button again on the same still-open screen and complete sign-in successfully, confirming the button still works after a dismissed attempt.
   - Retry-after-failure (bug #1: a rejected `aud`/`iss`/`exp`/`sub` token followed by a valid one through the same button registration) is **not manually reproducible** — a genuine Google-issued token always passes those checks, so a real browser session can't manufacture the failing-then-succeeding pair. This regression is covered by automated tests instead: `identityUseCase.test.ts` and `googleIdentityProvider.test.ts`.
@@ -61,7 +61,7 @@
 
 ## 10. Drop the account-locale tier (D10 — follow-up to 9.2's verified finding)
 
-- [ ] 10.1 Remove `locale` from the `UserIdentity` entity and stop reading the `locale` claim in `decodeGoogleIdToken` (persisted sessions still carrying a `locale` field restore fine — the session validator ignores unknown fields; no migration)
-- [ ] 10.2 Collapse the account-locale parameter out of `resolvePreferences`/`getEffectivePreferences` (cascade: browser locale → fallback) and stop threading `accountLocale` through `PreferencesProvider`
-- [ ] 10.3 Update tests: remove account-locale fixtures and the account-locale-beats-browser scenario; re-key/partition and override-beats-cascade tests stay
-- [ ] 10.4 Run `npm run test` and `npm run typecheck`; all green
+- [x] 10.1 Remove `locale` from the `UserIdentity` entity and stop reading the `locale` claim in `decodeGoogleIdToken` (persisted sessions still carrying a `locale` field restore fine — the session validator ignores unknown fields; no migration)
+- [x] 10.2 Collapse the account-locale parameter out of `resolvePreferences`/`getEffectivePreferences` (cascade: browser locale → fallback) and stop threading `accountLocale` through `PreferencesProvider`
+- [x] 10.3 Update tests: remove account-locale fixtures and the account-locale-beats-browser scenario; re-key/partition and override-beats-cascade tests stay
+- [x] 10.4 Run `npm run test` and `npm run typecheck`; all green

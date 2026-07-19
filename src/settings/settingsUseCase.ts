@@ -12,12 +12,9 @@ export class SettingsUseCase {
     this.userId = userId;
   }
 
-  async getEffectivePreferences(
-    accountLocale: string | null,
-    browserLocale: string | null,
-  ): Promise<Preferences> {
+  async getEffectivePreferences(browserLocale: string | null): Promise<Preferences> {
     const overrides = await this.loadOverrides();
-    return resolvePreferences(accountLocale, browserLocale, overrides);
+    return resolvePreferences(browserLocale, overrides);
   }
 
   async setOverride<K extends PreferenceKey>(key: K, value: Preferences[K]): Promise<void> {

@@ -12,7 +12,6 @@ interface GoogleIdTokenPayload {
   name?: string;
   email?: string;
   picture?: string;
-  locale?: string;
 }
 
 // Decodes and checks `sub`/`aud`/`iss`/`exp` as defense-in-depth (`google-signin` D9) — the
@@ -43,7 +42,6 @@ export function decodeGoogleIdToken(jwt: string, expectedClientId: string): User
     displayName: payload.name ?? payload.email ?? '',
     email: payload.email ?? '',
     pictureUrl: payload.picture,
-    locale: payload.locale,
   };
 }
 

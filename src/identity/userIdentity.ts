@@ -4,7 +4,6 @@ export interface UserIdentity {
   readonly displayName: string;
   readonly email: string;
   readonly pictureUrl?: string;
-  readonly locale?: string;
 }
 
 // The Google account's `sub` claim is stable and opaque per account (`google-signin` D3) and
