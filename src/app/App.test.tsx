@@ -4,8 +4,18 @@ import userEvent from '@testing-library/user-event';
 import { IDBFactory } from 'fake-indexeddb';
 import { BrowserRouter, MemoryRouter } from 'react-router';
 import i18next from '../i18n/i18n';
+import { identityUseCaseFor } from '../identity/testing/identityMock';
+import type { UserIdentity } from '../identity/userIdentity';
 import { closeDb } from '../storage/db';
 import App from './App';
+
+// These tests exercise routing/i18n, not identity, so they run pre-signed-in via a mock
+// use case (identity concerns are covered by Gate.test.tsx).
+const TEST_USER: UserIdentity = {
+  userId: 'test-user',
+  displayName: 'Test User',
+  email: 'test-user@example.com',
+};
 
 describe('App', () => {
   beforeEach(async () => {
@@ -25,7 +35,7 @@ describe('App', () => {
     const user = userEvent.setup();
     render(
       <MemoryRouter>
-        <App />
+        <App useCase={identityUseCaseFor(TEST_USER)} />
       </MemoryRouter>,
     );
 
@@ -42,7 +52,7 @@ describe('App', () => {
   it('renders Settings when entering directly at /settings', async () => {
     render(
       <MemoryRouter initialEntries={['/settings']}>
-        <App />
+        <App useCase={identityUseCaseFor(TEST_USER)} />
       </MemoryRouter>,
     );
 
@@ -53,7 +63,7 @@ describe('App', () => {
     const user = userEvent.setup();
     render(
       <MemoryRouter initialEntries={['/']}>
-        <App />
+        <App useCase={identityUseCaseFor(TEST_USER)} />
       </MemoryRouter>,
     );
 
@@ -72,7 +82,7 @@ describe('App', () => {
   it('renders a localized not-found view for an unknown path', async () => {
     render(
       <MemoryRouter initialEntries={['/nope']}>
-        <App />
+        <App useCase={identityUseCaseFor(TEST_USER)} />
       </MemoryRouter>,
     );
 
@@ -88,7 +98,7 @@ describe('App', () => {
       // is integration with the real `window.history` back/forward stack, which
       // MemoryRouter deliberately bypasses.
       <BrowserRouter>
-        <App />
+        <App useCase={identityUseCaseFor(TEST_USER)} />
       </BrowserRouter>,
     );
 

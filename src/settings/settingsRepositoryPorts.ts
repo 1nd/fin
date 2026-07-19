@@ -1,4 +1,6 @@
 // CCA: 2
+// Ports that contain contracts for the Settings data repository
+
 import type { StorageRecord } from '../storage/record';
 
 export type SettingsRecord = StorageRecord<{

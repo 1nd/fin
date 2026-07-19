@@ -12,15 +12,13 @@ import {
 
 export type PreferenceOverrides = Partial<Record<PreferenceKey, string>>;
 
-// Cascade: account locale -> browser locale -> built-in fallback, with a
-// stored override always winning over whichever default applies.
+// Cascade: browser locale -> built-in fallback, with a stored override
+// always winning over whichever default applies.
 export function resolvePreferences(
-  accountLocale: string | null,
   browserLocale: string | null,
   overrides: PreferenceOverrides,
 ): Preferences {
-  const base =
-    localeDefaults(accountLocale) ?? localeDefaults(browserLocale) ?? FALLBACK_PREFERENCES;
+  const base = localeDefaults(browserLocale) ?? FALLBACK_PREFERENCES;
 
   return {
     language: pick(overrides.language, isLanguage, base.language),

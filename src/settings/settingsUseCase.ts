@@ -1,7 +1,7 @@
 // CCA: 2
 import { PREFERENCE_KEYS, type PreferenceKey, type Preferences } from './preferences';
 import { resolvePreferences, type PreferenceOverrides } from './resolvePreferences';
-import type { SettingsRepository } from './settingsRepository';
+import type { SettingsRepository } from './settingsRepositoryPorts';
 
 export class SettingsUseCase {
   private readonly repository: SettingsRepository;
@@ -12,12 +12,9 @@ export class SettingsUseCase {
     this.userId = userId;
   }
 
-  async getEffectivePreferences(
-    accountLocale: string | null,
-    browserLocale: string | null,
-  ): Promise<Preferences> {
+  async getEffectivePreferences(browserLocale: string | null): Promise<Preferences> {
     const overrides = await this.loadOverrides();
-    return resolvePreferences(accountLocale, browserLocale, overrides);
+    return resolvePreferences(browserLocale, overrides);
   }
 
   async setOverride<K extends PreferenceKey>(key: K, value: Preferences[K]): Promise<void> {

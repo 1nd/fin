@@ -25,22 +25,22 @@ The system SHALL offer exactly these values in Phase 1: language `en` or `id`; n
 - **THEN** no 12-hour/24-hour choice exists and any displayed time uses 24-hour format
 
 ### Requirement: Default cascade
-The system SHALL derive each preference's default by a pure function evaluating, in order: account locale (absent until Google Sign-In lands), then browser locale, then a built-in fallback. A stored user override SHALL always take precedence over the cascade. The date format default SHALL be `YYYY-MM-DD` (ISO 8601) for every locale — locale determines only the language and number format defaults.
+The system SHALL derive each preference's default by a pure function evaluating browser locale, then a built-in fallback. A stored user override SHALL always take precedence over the cascade. The date format default SHALL be `YYYY-MM-DD` (ISO 8601) for every locale — locale determines only the language and number format defaults. (An account-locale tier ahead of browser locale — "absent until Google Sign-In lands" — was dropped rather than activated: Google no longer issues the `locale` claim; see the google-signin design, D10.)
 
-#### Scenario: Browser locale supplies defaults before sign-in exists
-- **WHEN** a user with no stored overrides and an Indonesian browser locale opens the app
+#### Scenario: Browser locale supplies defaults
+- **WHEN** a signed-in user with no stored overrides has an Indonesian browser locale
 - **THEN** defaults resolve from the browser locale (language `id`, number format `1.234,56`) with date format `YYYY-MM-DD`
 
 #### Scenario: Fallback when locale is unrecognized
-- **WHEN** a user with no stored overrides has a browser locale the app does not recognize
+- **WHEN** a user with no stored overrides has no browser locale the app recognizes
 - **THEN** the built-in fallback defaults apply and the app renders normally
 
 #### Scenario: Override beats cascade
-- **WHEN** a user whose browser locale is Indonesian has stored a language override of `en`
+- **WHEN** a signed-in user with an Indonesian browser locale has stored a language override of `en`
 - **THEN** the UI renders in English
 
 ### Requirement: Preferences persist per user
-The system SHALL persist preference overrides in local storage keyed by `userId` (a placeholder id until sign-in lands), so they survive reload and remain partitioned per user.
+The system SHALL persist preference overrides in local storage keyed by the signed-in user's Google `userId`, so they survive reload and remain partitioned per user; a different signed-in account resolves to a different partition.
 
 #### Scenario: Preferences survive reload
 - **WHEN** the user sets language to `id` and date format to `DD-MM-YYYY`, then reloads the app
@@ -48,7 +48,11 @@ The system SHALL persist preference overrides in local storage keyed by `userId`
 
 #### Scenario: Stored under the owning user's id
 - **WHEN** a preference override is written to storage
-- **THEN** the stored record is keyed by the current `userId`
+- **THEN** the stored record is keyed by the currently signed-in `userId`
+
+#### Scenario: Different accounts see different preferences
+- **WHEN** a preference override set while signed in as one Google account is read after switching to a different Google account
+- **THEN** the second account does not see the first account's override and resolves its own cascade-derived value
 
 ### Requirement: Settings page applies changes immediately
 The system SHALL provide a Settings page where the user can view current effective preferences and change any of them, with changes applied across the UI immediately — no reload or save button required.

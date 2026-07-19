@@ -4,7 +4,7 @@ import { initReactI18next } from 'react-i18next';
 import en from './resources/en.json';
 import id from './resources/id.json';
 
-// Catalogs are bundled inline (`openspec/changes/app-foundation/design.md` D3), so `init()` completes synchronously and
+// Catalogs are bundled inline (`app-foundation` D3), so `init()` completes synchronously and
 // `void` is safe: `t()` works from the first render. If catalogs ever load async,
 // `init` must be awaited (or Suspense enabled) before render. Guard (task 4.4): the
 // UI smoke test must assert real translated strings — raw-key output must fail it;

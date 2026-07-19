@@ -11,6 +11,8 @@
 
 ESLint and Prettier are run automatically when Git committing. So, no need to run them on each changes.
 
+Use `npm run test`/`npm run typecheck` rather than invoking `vitest`/`tsc` directly: Node's built-in experimental Web Storage global shadows jsdom's `localStorage` unless the process is started with `--no-experimental-webstorage` (wired into the `test` script).
+
 ## Visual verification of UI changes
 
 Unit tests run in jsdom, which does no real layout — it cannot verify responsive behavior, CSS rendering, or anything visual. For changes that touch UI:

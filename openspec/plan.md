@@ -97,8 +97,9 @@ monthly copies, ever.
 - **Google Sign-In** for identity, **required before entering data** and
   landing early in the roadmap (before any data-entry change). In Phase 1 it is
   *identity convenience, not a security boundary* — anyone with browser access
-  can see the data. Payoffs: no registration flow, locale defaults, Drive
-  permission for backup.
+  can see the data. Payoffs: no registration flow, Drive permission for
+  backup. (Locale defaults were expected as a third payoff, but Google no
+  longer issues the `locale` claim — verified in (B); see its design.)
 - **Multiple Google accounts on the same browser are distinct users** with
   fully separate data partitions — e.g. a friend test-driving Fin on the
   author's laptop. Sign-out / account switching is in the sign-in change's
@@ -131,9 +132,13 @@ monthly copies, ever.
 - **Date format:** ISO 8601 `YYYY-MM-DD`, `DD-MM-YYYY`, or `MM-DD-YYYY` —
   decoupled from both.
 - **Time:** 24-hour only.
-- **Default cascade:** Google account locale → browser locale → fallback;
-  every preference overridable in Settings. The cascade is a pure function
-  (entity-layer material).
+- **Default cascade:** browser locale → fallback; every preference
+  overridable in Settings. The cascade is a pure function (entity-layer
+  material). An account-locale tier ahead of browser locale was planned,
+  but Google stopped issuing the `locale` claim (verified in (B)), so the
+  tier was dropped rather than shipped inert; reintroducing it is not
+  expected unless a source that can deliver an account locale at first
+  sign-in appears — open a discussion then.
 
 ### Theming & UI
 
@@ -189,8 +194,6 @@ monthly copies, ever.
 - Clean Code Architecture layers per `AGENTS.md` (`// CCA: <n>` tags,
   dependency rule). Pure TS domain core (layers 1–2); storage, rate sources,
   identity, and backup destinations are swappable adapters (layers 3–4).
-- Recurring pattern: **two adapters, one entity** (manual rate entry vs rate
-  API; file export vs Drive backup; local user vs Google identity).
 
 ### Engineering practices
 

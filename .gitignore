@@ -11,6 +11,11 @@ node_modules
 dist
 dist-ssr
 *.local
+.personal
+
+# Local env overrides (see .env.example)
+.env
+.env.local
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +27,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Testing
+coverage/

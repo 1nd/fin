@@ -1,6 +1,6 @@
 // CCA: 4
 import { getDb } from '../../storage/db';
-import type { SettingsRecord, SettingsRepository } from '../settingsRepository';
+import type { SettingsRecord, SettingsRepository } from '../settingsRepositoryPorts';
 
 export class IndexedDbSettingsRepository implements SettingsRepository {
   async get(userId: string, key: string): Promise<SettingsRecord | undefined> {

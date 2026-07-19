@@ -1,11 +1,70 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { IDBFactory } from 'fake-indexeddb';
+import type { ReactNode } from 'react';
 import i18next from '../i18n/i18n';
+import { IdentityContextProvider, useIdentity } from '../identity/IdentityContext';
+import { IdentityUseCase } from '../identity/identityUseCase';
+import type {
+  IdentityProvider as IdentityProviderPort,
+  IdentitySignInResult,
+} from '../identity/identityProviderPorts';
+import { identityUseCaseFor, InMemorySessionStore } from '../identity/testing/identityMock';
+import type { UserIdentity } from '../identity/userIdentity';
+import { closeDb } from '../storage/db';
 import { PreferencesProvider, usePreferences } from './PreferencesContext';
 import { FALLBACK_PREFERENCES, type Preferences } from './preferences';
 import { SettingsPage } from './SettingsPage';
 import { SettingsUseCase } from './settingsUseCase';
+
+const USER_A: UserIdentity = { userId: 'user-a', displayName: 'A', email: 'a@example.com' };
+
+function withIdentity(identity: UserIdentity | null, children: ReactNode) {
+  return (
+    <IdentityContextProvider useCase={identityUseCaseFor(identity)}>
+      {children}
+    </IdentityContextProvider>
+  );
+}
+
+// Delivers the next queued identity each time the affordance is "rendered" —
+// simulates a user signing out and back in as a different Google account.
+class QueuedIdentityProvider implements IdentityProviderPort {
+  private readonly queue: UserIdentity[];
+  private listener: ((result: IdentitySignInResult) => void) | undefined;
+
+  constructor(identities: UserIdentity[]) {
+    this.queue = [...identities];
+  }
+
+  async renderInto(): Promise<void> {
+    const next = this.queue.shift();
+    if (!next) throw new Error('no more identities queued');
+    this.listener?.({ ok: true, identity: next });
+  }
+
+  onIdentity(listener: (result: IdentitySignInResult) => void): () => void {
+    this.listener = listener;
+    return () => {
+      this.listener = undefined;
+    };
+  }
+}
+
+function IdentityControls() {
+  const { signIn, signOut } = useIdentity();
+  return (
+    <div>
+      <button type="button" onClick={() => void signIn(document.createElement('div'))}>
+        sign-in
+      </button>
+      <button type="button" onClick={signOut}>
+        sign-out
+      </button>
+    </div>
+  );
+}
 
 function Probe() {
   const { preferences, setPreference } = usePreferences();
@@ -43,9 +102,12 @@ describe('PreferencesProvider', () => {
 
     const user = userEvent.setup();
     render(
-      <PreferencesProvider>
-        <Probe />
-      </PreferencesProvider>,
+      withIdentity(
+        USER_A,
+        <PreferencesProvider>
+          <Probe />
+        </PreferencesProvider>,
+      ),
     );
 
     await user.click(screen.getByRole('button', { name: 'set-language' }));
@@ -78,9 +140,12 @@ describe('PreferencesProvider', () => {
 
     const user = userEvent.setup();
     render(
-      <PreferencesProvider>
-        <SettingsPage />
-      </PreferencesProvider>,
+      withIdentity(
+        USER_A,
+        <PreferencesProvider>
+          <SettingsPage />
+        </PreferencesProvider>,
+      ),
     );
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -118,9 +183,12 @@ describe('PreferencesProvider', () => {
 
     const user = userEvent.setup();
     render(
-      <PreferencesProvider>
-        <SettingsPage />
-      </PreferencesProvider>,
+      withIdentity(
+        USER_A,
+        <PreferencesProvider>
+          <SettingsPage />
+        </PreferencesProvider>,
+      ),
     );
 
     await user.selectOptions(screen.getByLabelText('Date format'), 'DD-MM-YYYY');
@@ -143,9 +211,12 @@ describe('PreferencesProvider', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     render(
-      <PreferencesProvider>
-        <SettingsPage />
-      </PreferencesProvider>,
+      withIdentity(
+        USER_A,
+        <PreferencesProvider>
+          <SettingsPage />
+        </PreferencesProvider>,
+      ),
     );
 
     await waitFor(() => {
@@ -160,5 +231,50 @@ describe('PreferencesProvider', () => {
     expect(screen.getByLabelText('Date format')).toHaveValue('YYYY-MM-DD');
     // A load failure is not a save failure — no notice.
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it("switching to a second account does not see the first account's override", async () => {
+    await closeDb();
+    (globalThis as { indexedDB: IDBFactory }).indexedDB = new IDBFactory();
+
+    const accountA: UserIdentity = {
+      userId: 'account-a',
+      displayName: 'A',
+      email: 'a@example.com',
+    };
+    const accountB: UserIdentity = {
+      userId: 'account-b',
+      displayName: 'B',
+      email: 'b@example.com',
+    };
+    // accountA comes from the restored session below; the queue only needs
+    // to supply what a later signIn() call resolves to.
+    const useCase = new IdentityUseCase(
+      new QueuedIdentityProvider([accountB]),
+      new InMemorySessionStore(accountA),
+    );
+
+    const user = userEvent.setup();
+    render(
+      <IdentityContextProvider useCase={useCase}>
+        <PreferencesProvider>
+          <Probe />
+          <IdentityControls />
+        </PreferencesProvider>
+      </IdentityContextProvider>,
+    );
+
+    // Account A sets and persists an override.
+    await user.click(screen.getByRole('button', { name: 'set-language' }));
+    await waitFor(() => expect(screen.getByTestId('language')).toHaveTextContent('id'));
+
+    // Sign out, then sign in as a different account.
+    await user.click(screen.getByRole('button', { name: 'sign-out' }));
+    await user.click(screen.getByRole('button', { name: 'sign-in' }));
+
+    // Account B does not inherit account A's override; its own cascade applies.
+    await waitFor(() => {
+      expect(screen.getByTestId('language')).toHaveTextContent('en');
+    });
   });
 });
