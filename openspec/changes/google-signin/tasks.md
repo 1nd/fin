@@ -57,3 +57,11 @@
   - Non-ASCII name isn't mangled: sign in with a Google account whose display name contains non-ASCII characters (e.g. accented letters or a CJK/Hangul name) and confirm it renders correctly in the account label, not mangled.
   - A direct visit to `/settings` while signed out lands on Settings after sign-in
   - Sign-in screen renders localized in en and id at phone/tablet/desktop widths
+  - `locale` claim reachability — **verified absent (2026-07-19)**: with the test account's Google-side language set to differ from the browser's, a fresh first sign-in persisted a `fin.identity.session` value with no `locale` field, and defaults fell through to browser locale. Google no longer issues the claim; the account-locale tier can never receive data in production. Decision: the tier is dropped (design.md D10; §10 below).
+
+## 10. Drop the account-locale tier (D10 — follow-up to 9.2's verified finding)
+
+- [ ] 10.1 Remove `locale` from the `UserIdentity` entity and stop reading the `locale` claim in `decodeGoogleIdToken` (persisted sessions still carrying a `locale` field restore fine — the session validator ignores unknown fields; no migration)
+- [ ] 10.2 Collapse the account-locale parameter out of `resolvePreferences`/`getEffectivePreferences` (cascade: browser locale → fallback) and stop threading `accountLocale` through `PreferencesProvider`
+- [ ] 10.3 Update tests: remove account-locale fixtures and the account-locale-beats-browser scenario; re-key/partition and override-beats-cascade tests stay
+- [ ] 10.4 Run `npm run test` and `npm run typecheck`; all green

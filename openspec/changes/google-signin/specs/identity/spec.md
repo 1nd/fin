@@ -30,7 +30,7 @@ A signed-out visit to any addressable URL SHALL keep the **full requested URL** 
 
 ### Requirement: Google Sign-In in the browser without a server
 
-The system SHALL authenticate the user through Google Sign-In entirely in the browser using a popup/embedded flow with no redirect URIs and no server exchange. On success the system SHALL derive a stable `userId` from the Google account's subject identifier and SHALL capture the account's display name, email, profile picture, and locale claim (when present) for display and preference defaults.
+The system SHALL authenticate the user through Google Sign-In entirely in the browser using a popup/embedded flow with no redirect URIs and no server exchange. On success the system SHALL derive a stable `userId` from the Google account's subject identifier and SHALL capture the account's display name, email, and profile picture for display.
 
 #### Scenario: Successful sign-in establishes the user
 

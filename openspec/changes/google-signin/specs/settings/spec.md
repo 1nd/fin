@@ -1,22 +1,18 @@
 ## MODIFIED Requirements
 
 ### Requirement: Default cascade
-The system SHALL derive each preference's default by a pure function evaluating, in order: the signed-in Google account's locale, then browser locale, then a built-in fallback. A stored user override SHALL always take precedence over the cascade. The date format default SHALL be `YYYY-MM-DD` (ISO 8601) for every locale — locale determines only the language and number format defaults.
+The system SHALL derive each preference's default by a pure function evaluating browser locale, then a built-in fallback. A stored user override SHALL always take precedence over the cascade. The date format default SHALL be `YYYY-MM-DD` (ISO 8601) for every locale — locale determines only the language and number format defaults. (An account-locale tier ahead of browser locale — "absent until Google Sign-In lands" — was dropped rather than activated: Google no longer issues the `locale` claim; see the google-signin design, D10.)
 
-#### Scenario: Account locale supplies defaults
-- **WHEN** a user with no stored overrides signs in with a Google account whose locale is Indonesian
-- **THEN** defaults resolve from the account locale (language `id`, number format `1.234,56`) with date format `YYYY-MM-DD`
-
-#### Scenario: Browser locale supplies defaults when the account has no locale
-- **WHEN** a signed-in user with no stored overrides has a Google account that carries no locale claim and an Indonesian browser locale
+#### Scenario: Browser locale supplies defaults
+- **WHEN** a signed-in user with no stored overrides has an Indonesian browser locale
 - **THEN** defaults resolve from the browser locale (language `id`, number format `1.234,56`) with date format `YYYY-MM-DD`
 
 #### Scenario: Fallback when locale is unrecognized
-- **WHEN** a user with no stored overrides has neither an account locale nor a browser locale the app recognizes
+- **WHEN** a user with no stored overrides has no browser locale the app recognizes
 - **THEN** the built-in fallback defaults apply and the app renders normally
 
 #### Scenario: Override beats cascade
-- **WHEN** a signed-in user whose account locale is Indonesian has stored a language override of `en`
+- **WHEN** a signed-in user with an Indonesian browser locale has stored a language override of `en`
 - **THEN** the UI renders in English
 
 ### Requirement: Preferences persist per user
