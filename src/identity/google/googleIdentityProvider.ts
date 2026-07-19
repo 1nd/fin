@@ -38,11 +38,13 @@ export class GoogleIdentityProvider implements IdentityProvider {
       // account chooser is unaffected either way.
       auto_select: false,
       callback: (response) => {
+        let result: IdentitySignInResult;
         try {
-          this.emit({ ok: true, identity: decodeGoogleIdToken(response.credential, clientId) });
+          result = { ok: true, identity: decodeGoogleIdToken(response.credential, clientId) };
         } catch (error) {
-          this.emit({ ok: false, error });
+          result = { ok: false, error };
         }
+        this.emit(result);
       },
     });
     container.replaceChildren();

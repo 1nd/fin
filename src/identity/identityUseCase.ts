@@ -6,6 +6,8 @@ import type { UserIdentity } from './userIdentity';
 export class IdentityUseCase {
   private readonly provider: IdentityProvider;
   private readonly sessionStore: SessionStore;
+  private readonly listeners = new Set<(result: IdentitySignInResult) => void>();
+  private providerSubscription: (() => void) | undefined;
 
   constructor(provider: IdentityProvider, sessionStore: SessionStore) {
     this.provider = provider;
@@ -21,12 +23,29 @@ export class IdentityUseCase {
   }
 
   // Every attempt the rendered affordance delivers (one per click, unbounded) flows through
-  // here; a successful one is persisted before the caller is notified.
+  // here; a successful one is persisted before subscribers are notified. Persistence happens
+  // on a single internal subscription to the provider, not per external listener — otherwise
+  // a second subscriber would persist the same identity again.
   onIdentity(listener: (result: IdentitySignInResult) => void): () => void {
-    return this.provider.onIdentity((result) => {
-      if (result.ok) this.sessionStore.persist(result.identity);
-      listener(result);
+    this.listeners.add(listener);
+    this.providerSubscription ??= this.provider.onIdentity((result) => {
+      if (result.ok) {
+        // Persistence failure (quota, private-mode) shouldn't demote a real sign-in to a
+        // failure notice; the in-memory session still works, only reload-persistence is lost.
+        try {
+          this.sessionStore.persist(result.identity);
+        } catch (error) {
+          console.warn(
+            'Failed to persist identity session; sign-in will not survive a reload',
+            error,
+          );
+        }
+      }
+      for (const eachListener of this.listeners) eachListener(result);
     });
+    return () => {
+      this.listeners.delete(listener);
+    };
   }
 
   signOut(): void {

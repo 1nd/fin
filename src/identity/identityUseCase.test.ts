@@ -1,8 +1,21 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { IdentityProvider, IdentitySignInResult } from './identityProviderPorts';
 import { IdentityUseCase } from './identityUseCase';
+import type { SessionStore } from './session/sessionStorePorts';
 import { FixedIdentityProvider, InMemorySessionStore } from './testing/identityMock';
 import { userIdFromGoogleSubject, type UserIdentity } from './userIdentity';
+
+class ThrowingPersistSessionStore implements SessionStore {
+  restore(): UserIdentity | null {
+    return null;
+  }
+
+  persist(): void {
+    throw new Error('quota exceeded');
+  }
+
+  clear(): void {}
+}
 
 class FailingIdentityProvider implements IdentityProvider {
   async renderInto(): Promise<void> {
@@ -107,5 +120,38 @@ describe('IdentityUseCase', () => {
       { ok: true, identity: ALICE },
     ]);
     expect(sessionStore.restore()).toEqual(ALICE);
+  });
+
+  it('still reports a successful sign-in when persisting the session fails', async () => {
+    // because persisting is best-effort. If it fails, a successful sign-in doesn't degrade into failure.
+
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const useCase = new IdentityUseCase(
+      new FixedIdentityProvider(ALICE),
+      new ThrowingPersistSessionStore(),
+    );
+    const results: IdentitySignInResult[] = [];
+    useCase.onIdentity((result) => results.push(result));
+
+    await useCase.renderInto(document.createElement('div'));
+
+    expect(results).toEqual([{ ok: true, identity: ALICE }]);
+    expect(console.warn).toHaveBeenCalledWith(
+      'Failed to persist identity session; sign-in will not survive a reload',
+      expect.any(Error),
+    );
+    vi.restoreAllMocks();
+  });
+
+  it('persists a successful attempt once, no matter how many listeners are subscribed', async () => {
+    const sessionStore = new InMemorySessionStore();
+    const persist = vi.spyOn(sessionStore, 'persist');
+    const useCase = new IdentityUseCase(new FixedIdentityProvider(ALICE), sessionStore);
+
+    useCase.onIdentity(() => {});
+    useCase.onIdentity(() => {});
+    await useCase.renderInto(document.createElement('div'));
+
+    expect(persist).toHaveBeenCalledTimes(1);
   });
 });

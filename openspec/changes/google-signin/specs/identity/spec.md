@@ -44,7 +44,7 @@ The system SHALL authenticate the user through Google Sign-In entirely in the br
 
 #### Scenario: A failed sign-in offers a way to retry without a reload
 
-- **WHEN** Google Sign-In fails before the sign-in affordance itself ever rendered (e.g. the sign-in script failed to load) — a rejected token is excluded here, since it leaves the real affordance rendered and already clickable again
+- **WHEN** Google Sign-In fails before the sign-in affordance itself ever rendered, for a reason a retry can plausibly fix (e.g. the sign-in script failed to load) — a rejected token is excluded here, since it leaves the real affordance rendered and already clickable again, and a missing/misconfigured client id is excluded here too, since that is a build-time configuration error no in-page retry can fix
 - **THEN** the sign-in screen offers a retry control, since there is otherwise nothing on screen for the user to act on
 
 #### Scenario: A dismissed sign-in prompt leaves the gate unchanged
